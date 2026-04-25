@@ -1,0 +1,43 @@
+{
+  "features": [
+    "analytical",
+    "creative",
+    "social",
+    "leadership",
+    "technical",
+    "riskTolerance",
+    "detail_oriented",
+    "entrepreneurial",
+    "empathy",
+    "communication"
+  ],
+  "classes": [
+    "Architect",
+    "Business Analyst",
+    "Civil Engineer",
+    "Content Creator",
+    "Cybersecurity Analyst",
+    "Data Scientist",
+    "DevOps Engineer",
+    "Digital Marketing Specialist",
+    "Doctor",
+    "Financial Analyst",
+    "Lawyer",
+    "Machine Learning Engineer",
+    "Nurse",
+    "Product Manager",
+    "Research Scientist",
+    "Software Engineer",
+    "Teacher",
+    "UX/UI Designer"
+  ],
+  "n_classes": 18,
+  "model_files": {
+    "xgboost": "xgb_model.joblib",
+    "svm": "svm_model.joblib",
+    "gradient_boosting": "gb_model.joblib",
+    "ensemble": "ensemble_model.joblib",
+    "scaler": "scaler.joblib",
+    "label_encoder": "label_encoder.joblib"
+  }
+}
