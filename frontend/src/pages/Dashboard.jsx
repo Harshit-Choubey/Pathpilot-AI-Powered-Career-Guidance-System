@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Target, Compass, Lock, CheckCircle, LayoutList } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Target, Compass, Lock, CheckCircle, LayoutList, Languages } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { roadmapService, progressService } from '../services/api';
 import { useTranslation } from 'react-i18next';
@@ -11,11 +11,13 @@ import FeedbackModal from '../components/Gamification/FeedbackModal';
 
 const Dashboard = () => {
   const { user } = useAuth();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [progress, setProgress] = useState(null);
   const [dailyMission, setDailyMission] = useState({ tasks: [], total_xp_available: 0, message: '' });
   const [skillGraph, setSkillGraph] = useState([]);
-  const [roadmap, setRoadmap] = useState([]);
+  const [roadmap, setRoadmap] = useState([]);          // English source-of-truth
+  const [displayRoadmap, setDisplayRoadmap] = useState([]); // What's actually rendered
+  const [isTranslating, setIsTranslating] = useState(false);
   
   const [isLoading, setIsLoading] = useState(true);
   
@@ -26,6 +28,49 @@ const Dashboard = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generateError, setGenerateError] = useState(null);
   const [targetCareer, setTargetCareer] = useState("Software Developer");
+
+  // ── Translation helper ───────────────────────────────────────────────────
+  const applyTranslation = useCallback(async (lng, sourceRoadmap) => {
+    if (!sourceRoadmap || sourceRoadmap.length === 0) return;
+
+    if (lng === 'en') {
+      setDisplayRoadmap(sourceRoadmap);
+      return;
+    }
+
+    // Check sessionStorage cache first
+    const cacheKey = `roadmap_translated_${lng}`;
+    const cached = sessionStorage.getItem(cacheKey);
+    if (cached) {
+      try {
+        setDisplayRoadmap(JSON.parse(cached));
+        return;
+      } catch (_) { /* cache corrupt, re-translate */ }
+    }
+
+    // Call translate endpoint
+    setIsTranslating(true);
+    try {
+      const res = await roadmapService.translateRoadmap(lng);
+      const translated = Array.isArray(res?.data) ? res.data : [];
+      if (translated.length > 0) {
+        sessionStorage.setItem(cacheKey, JSON.stringify(translated));
+        setDisplayRoadmap(translated);
+      } else {
+        setDisplayRoadmap(sourceRoadmap); // fallback to English
+      }
+    } catch (e) {
+      console.warn('Roadmap translation failed, showing English:', e);
+      setDisplayRoadmap(sourceRoadmap);
+    } finally {
+      setIsTranslating(false);
+    }
+  }, []);
+
+  // Invalidate cache when roadmap changes (new generation)
+  const invalidateTranslationCache = () => {
+    ['hi', 'mr'].forEach(lng => sessionStorage.removeItem(`roadmap_translated_${lng}`));
+  };
 
   const fetchDashboardData = async () => {
     try {
@@ -43,7 +88,12 @@ const Dashboard = () => {
       if (skillRes?.data) setSkillGraph(skillRes.data);
       
       const rdArr = Array.isArray(roadRes?.data) ? roadRes.data : [];
-      if (rdArr.length > 0) setRoadmap(rdArr);
+      if (rdArr.length > 0) {
+        setRoadmap(rdArr);
+        setDisplayRoadmap(rdArr); // set English immediately
+        // Then apply translation if needed
+        applyTranslation(i18n.language, rdArr);
+      }
 
       // Extract target career from assessment history
       const history = assRes?.data?.history || [];
@@ -62,12 +112,20 @@ const Dashboard = () => {
     fetchDashboardData();
   }, []);
 
+  // Re-translate whenever language changes and we already have a roadmap
+  useEffect(() => {
+    if (roadmap.length > 0) {
+      applyTranslation(i18n.language, roadmap);
+    }
+  }, [i18n.language, roadmap, applyTranslation]);
+
   const handleGenerateRoadmap = async () => {
     setIsGenerating(true);
     setGenerateError(null);
     try {
-      // Generate using the actual career from the user's assessment
-      await roadmapService.generateRoadmap(targetCareer);
+      // Pass active language so new roadmap is generated in that language
+      await roadmapService.generateRoadmap(targetCareer, i18n.language);
+      invalidateTranslationCache(); // bust old translations
 
       // Poll every 3s for up to 15 attempts (45s max)
       let attempts = 0;
@@ -79,6 +137,7 @@ const Dashboard = () => {
           const arr = Array.isArray(res?.data) ? res.data : [];
           if (arr.length > 0) {
             setRoadmap(arr);
+            setDisplayRoadmap(arr);
             setIsGenerating(false);
             clearInterval(pollInterval);
             fetchDashboardData(); // Refresh all gamification stats
@@ -120,7 +179,14 @@ const Dashboard = () => {
   }
 
   // Helper to find current phase name from roadmap
-  const activeNode = roadmap.find(n => !n.is_completed) || roadmap[0];
+  const activeNode = displayRoadmap.find(n => !n.is_completed) || displayRoadmap[0];
+
+  // Helper: safely parse skill_tags regardless of format (array or JSON string)
+  const parseTags = (tags) => {
+    if (!tags) return [];
+    if (Array.isArray(tags)) return tags;
+    try { return JSON.parse(tags); } catch { return []; }
+  };
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
@@ -129,6 +195,12 @@ const Dashboard = () => {
           <h1 className="text-3xl font-black text-slate-800 tracking-tight">{t('dashboard.title')}</h1>
           <p className="text-slate-500 font-medium mt-1">{t('dashboard.welcome_back')} {user?.full_name}</p>
         </div>
+        {isTranslating && (
+          <div className="flex items-center gap-2 text-indigo-600 text-sm font-medium animate-pulse">
+            <Languages size={16} />
+            <span>Translating roadmap...</span>
+          </div>
+        )}
       </div>
 
       {/* ZONE 1: Gamification HUD */}
@@ -153,7 +225,7 @@ const Dashboard = () => {
             </div>
           )}
 
-          {roadmap.length === 0 ? (
+          {displayRoadmap.length === 0 ? (
             <div className="bg-white border-2 border-slate-100 rounded-2xl p-10 text-center shadow-sm">
               <div className="w-16 h-16 bg-indigo-50 text-indigo-500 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Target size={32} />
@@ -179,10 +251,15 @@ const Dashboard = () => {
              </div>
           ) : (
             <div className="space-y-4">
-              {dailyMission.tasks.map((task) => (
+              {dailyMission.tasks.map((task) => {
+                // Find translated version of task from displayRoadmap
+                const translatedTask = displayRoadmap
+                  .flatMap(n => n.tasks || [])
+                  .find(dt => dt.id === task.id) || task;
+                return (
                 <div 
                   key={task.id} 
-                  onClick={() => setSelectedTask(task)}
+                  onClick={() => setSelectedTask({ ...task, ...translatedTask })}
                   className="bg-white border-2 border-slate-100 rounded-2xl p-5 shadow-sm hover:border-indigo-400 hover:shadow-md transition-all group flex items-start gap-4 cursor-pointer relative overflow-hidden"
                 >
                   {task.project_linked && (
@@ -194,7 +271,7 @@ const Dashboard = () => {
                   <div className="flex-1 mt-1">
                     <div className="flex justify-between items-start mb-2">
                       <h4 className="font-bold text-lg text-slate-800 group-hover:text-indigo-700 transition-colors pr-10">
-                        {task.title}
+                        {translatedTask.title || task.title}
                       </h4>
                       <span className="bg-slate-100 text-slate-600 text-xs font-bold px-2 py-1 rounded whitespace-nowrap">
                         {task.estimated_minutes} min
@@ -210,20 +287,16 @@ const Dashboard = () => {
                         {task.difficulty}
                       </span>
                       
-                      {task.skill_tags && (() => {
-                        try {
-                          const tags = JSON.parse(task.skill_tags);
-                          return tags.slice(0, 2).map((tag, i) => (
-                            <span key={i} className="text-xs font-medium text-slate-500 bg-slate-100 px-2 py-1 rounded-md">
-                              {tag}
-                            </span>
-                          ));
-                        } catch(e) { return null; }
-                      })()}
+                      {parseTags(task.skill_tags).slice(0, 2).map((tag, i) => (
+                        <span key={i} className="text-xs font-medium text-slate-500 bg-slate-100 px-2 py-1 rounded-md">
+                          {tag}
+                        </span>
+                      ))}
                     </div>
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -241,12 +314,12 @@ const Dashboard = () => {
                 <h4 className="text-lg font-black text-slate-800 leading-tight mb-2">{activeNode.title}</h4>
                 <div className="flex items-center justify-between text-xs font-bold text-slate-500 mb-2">
                   <span>{t('dashboard.phase_progress')}</span>
-                  <span>{activeNode.tasks.filter(t => t.is_completed).length} / {activeNode.tasks.length} {t('dashboard.tasks')}</span>
+                  <span>{(activeNode.tasks || []).filter(t => t.is_completed).length} / {(activeNode.tasks || []).length} {t('dashboard.tasks')}</span>
                 </div>
                 <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                   <div 
                     className="h-full bg-indigo-500 rounded-full transition-all"
-                    style={{ width: `${(activeNode.tasks.filter(t => t.is_completed).length / Math.max(1, activeNode.tasks.length)) * 100}%` }}
+                    style={{ width: `${((activeNode.tasks || []).filter(t => t.is_completed).length / Math.max(1, (activeNode.tasks || []).length)) * 100}%` }}
                   />
                 </div>
               </div>

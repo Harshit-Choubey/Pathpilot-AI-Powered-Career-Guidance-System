@@ -131,7 +131,7 @@ def ml_inference_task(self, user_id: str, assessment_data: dict, assessment_id: 
 
 
 @celery_app.task(name="roadmap_generation_task", bind=True)
-def roadmap_generation_task(self, user_id: str, career_goal: str):
+def roadmap_generation_task(self, user_id: str, career_goal: str, language: str = "en"):
     """
     Triggers parsing of the required skills mapping and outputs an Acyclic Graph
     (DAG) of Database Task objects using Groq LLM (llama-3.3-70b-versatile).
@@ -143,7 +143,19 @@ def roadmap_generation_task(self, user_id: str, career_goal: str):
         logger.error("GROQ_API_KEY missing. Roadmap generation failed.")
         return {"status": "FAILED", "reason": "Missing API Key"}
 
-    system_prompt = "You are an expert career planner. Output ONLY raw JSON arrays with no markdown, no explanation, no extra text."
+    LANGUAGE_NAMES = {"en": "English", "hi": "Hindi", "mr": "Marathi"}
+    language_name = LANGUAGE_NAMES.get(language, "English")
+
+    lang_instruction = (
+        f" ALL text values in the JSON (titles, descriptions, action_steps, expected_outcome, "
+        f"validation_criteria, skill_tags, resource titles) MUST be written in {language_name}. "
+        f"Only JSON keys and enum values like 'Beginner', 'Intermediate', 'Advanced', 'video', 'reading', "
+        f"'practice', 'project', 'quiz', 'assignment', 'self-check' must remain in English as-is."
+    ) if language != "en" else ""
+
+    system_prompt = f"You are an expert career planner. Output ONLY raw JSON arrays with no markdown, no explanation, no extra text.{lang_instruction}"
+
+    lang_note = f" Write all descriptive text in {language_name}." if language != "en" else ""
 
     user_prompt = (
         f"User Details:\n"
@@ -158,14 +170,14 @@ def roadmap_generation_task(self, user_id: str, career_goal: str):
         f"5. Resources\n\n"
         f'Output EXACTLY as a JSON array of phases. Each phase object should have "title", "description", and a "tasks" array.\n'
         f'Each task object MUST strictly contain the following fields:\n'
-        f'- "title": (string) Task Name\n'
+        f'- "title": (string) Task Name{lang_note}\n'
         f'- "difficulty": (string) "Beginner" | "Intermediate" | "Advanced"\n'
         f'- "estimated_minutes": (integer) e.g., 30\n'
         f'- "task_type": (string) "video" | "reading" | "practice" | "project" | "quiz"\n'
-        f'- "action_steps": (array of strings) Exact steps to perform\n'
-        f'- "expected_outcome": (string) What user achieves\n'
+        f'- "action_steps": (array of strings) Exact steps to perform{lang_note}\n'
+        f'- "expected_outcome": (string) What user achieves{lang_note}\n'
         f'- "validation_type": (string) "quiz" | "assignment" | "project" | "self-check"\n'
-        f'- "validation_criteria": (string) How success is measured\n'
+        f'- "validation_criteria": (string) How success is measured{lang_note}\n'
         f'- "project_linked": (boolean)\n'
         f'- "skill_tags": (array of strings) e.g. ["SQL", "Data Analysis"]\n'
         f'- "xp_reward": (integer) 10 for normal, 50 for project\n'

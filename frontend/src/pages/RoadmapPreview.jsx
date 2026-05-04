@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { Play, FileText, CheckCircle, Clock, BookOpen, PenTool, Rocket, ChevronDown, List } from 'lucide-react';
 import { roadmapService } from '../services/api';
+import { useTranslation } from 'react-i18next';
 
 const RoadmapPreview = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
   const career = location.state?.career;
 
   const [status, setStatus] = useState('generating'); // generating, ready, error
@@ -18,7 +20,7 @@ const RoadmapPreview = () => {
     const generateAndPoll = async () => {
       try {
         // Step 1: Trigger Generation
-        await roadmapService.generateRoadmap(career);
+        await roadmapService.generateRoadmap(career, i18n.language);
         
         // Step 2: Poll for completion
         let attempts = 0;
@@ -70,13 +72,16 @@ const RoadmapPreview = () => {
           </div>
         </div>
         <h2 className="text-3xl font-black text-slate-800 mb-4 tracking-tight">
-          Building your <span className="text-indigo-600">{career}</span> Curriculum
+          {t('dashboard.building_curriculum', 'Building your {{career}} Curriculum', { career: career }).split(career).reduce((prev, current, i) => {
+            if (!i) return [current];
+            return prev.concat(<span key={i} className="text-indigo-600">{career}</span>, current);
+          }, [])}
         </h2>
         <p className="text-slate-500 max-w-md mx-auto text-lg leading-relaxed">
-          Our AI is mapping out your phases, detailing action steps, and structuring your daily execution missions...
+          {t('dashboard.mapping_phases', 'Our AI is mapping out your phases, detailing action steps, and structuring your daily execution missions...')}
         </p>
         <p className="text-xs text-slate-400 uppercase tracking-widest font-bold mt-8 animate-pulse">
-          Usually takes ~30 seconds
+          {t('dashboard.takes_30_seconds', 'Usually takes ~30 seconds')}
         </p>
       </div>
     );
@@ -89,13 +94,13 @@ const RoadmapPreview = () => {
         <div className="w-20 h-20 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center mb-6">
           <span className="text-3xl">⚠️</span>
         </div>
-        <h2 className="text-2xl font-bold text-slate-800 mb-2">Generation Timeout</h2>
-        <p className="text-slate-500 mb-6 max-w-md">The AI curriculum took too long to build. This can happen during peak loads.</p>
+        <h2 className="text-2xl font-bold text-slate-800 mb-2">{t('dashboard.generation_timeout', 'Generation Timeout')}</h2>
+        <p className="text-slate-500 mb-6 max-w-md">{t('dashboard.timeout_desc', 'The AI curriculum took too long to build. This can happen during peak loads.')}</p>
         <button 
           onClick={() => setStatus('generating')} 
           className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-xl"
         >
-          Try Again
+          {t('dashboard.try_again', 'Try Again')}
         </button>
       </div>
     );
@@ -109,13 +114,13 @@ const RoadmapPreview = () => {
         {/* Header */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 bg-emerald-100 text-emerald-700 font-bold px-4 py-1.5 rounded-full text-sm mb-6 shadow-sm">
-            <CheckCircle size={18} /> Curriculum Generated
+            <CheckCircle size={18} /> {t('dashboard.curriculum_generated', 'Curriculum Generated')}
           </div>
           <h1 className="text-4xl md:text-5xl font-black text-slate-900 mb-4 tracking-tight">
-            Your {career} Masterplan
+            {t('dashboard.your_masterplan', 'Your {{career}} Masterplan', { career })}
           </h1>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-            Review your tailored syllabus below. When you're ready, initialize the gamified execution engine to start tracking your daily progress.
+            {t('dashboard.review_syllabus', "Review your tailored syllabus below. When you're ready, initialize the gamified execution engine to start tracking your daily progress.")}
           </p>
         </div>
 
@@ -130,13 +135,13 @@ const RoadmapPreview = () => {
               >
                 <div>
                   <h3 className="text-xs font-bold text-indigo-500 uppercase tracking-widest mb-1">
-                    Phase {phase.phase_number || idx + 1}
+                    {t('dashboard.phase_number', 'Phase {{number}}', { number: phase.phase_number || idx + 1 })}
                   </h3>
                   <h2 className="text-xl font-bold text-slate-800">{phase.title}</h2>
                 </div>
                 <div className="flex items-center gap-4 text-slate-400">
                   <div className="hidden sm:flex items-center gap-1 text-sm font-medium">
-                    <List size={16} /> {phase.tasks.length} Modules
+                    <List size={16} /> {t('dashboard.modules', '{{length}} Modules', { length: phase.tasks.length })}
                   </div>
                   <ChevronDown 
                     size={20} 
@@ -175,7 +180,7 @@ const RoadmapPreview = () => {
                             {task.difficulty}
                           </span>
                           {task.project_linked && (
-                            <span className="bg-indigo-100 text-indigo-700 px-2 py-1 rounded">Project</span>
+                            <span className="bg-indigo-100 text-indigo-700 px-2 py-1 rounded">{t('dashboard.project', 'Project')}</span>
                           )}
                         </div>
                       </div>
@@ -190,14 +195,14 @@ const RoadmapPreview = () => {
         {/* Action CTA */}
         <div className="sticky bottom-6 bg-white p-6 rounded-2xl shadow-2xl border border-indigo-100 flex flex-col sm:flex-row justify-between items-center gap-6">
           <div>
-            <h3 className="font-black text-slate-800 text-lg">Ready to begin?</h3>
-            <p className="text-slate-500 text-sm">Start your daily missions and earn XP.</p>
+            <h3 className="font-black text-slate-800 text-lg">{t('dashboard.ready_begin', 'Ready to begin?')}</h3>
+            <p className="text-slate-500 text-sm">{t('dashboard.start_missions_xp', 'Start your daily missions and earn XP.')}</p>
           </div>
           <button 
             onClick={() => navigate('/dashboard')}
             className="w-full sm:w-auto bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-black py-4 px-10 rounded-xl shadow-lg shadow-indigo-200 transform transition hover:-translate-y-1"
           >
-            Start Execution Engine
+            {t('dashboard.start_execution_engine', 'Start Execution Engine')}
           </button>
         </div>
 

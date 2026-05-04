@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Smile, Meh, Frown, X } from 'lucide-react';
 import { progressService } from '../../services/api';
+import { useTranslation } from 'react-i18next';
 
 const FeedbackModal = ({ task, onClose, onSuccess }) => {
+  const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [earnedXP, setEarnedXP] = useState(null);
 
@@ -42,8 +44,8 @@ const FeedbackModal = ({ task, onClose, onSuccess }) => {
             <button onClick={onClose} className="absolute right-4 top-4 text-slate-400 hover:text-slate-600">
               <X size={20} />
             </button>
-            <h3 className="text-xl font-bold text-slate-800 mb-2">Task Completed! 🎉</h3>
-            <p className="text-slate-500 mb-6 font-medium">How did you find this material?</p>
+            <h3 className="text-xl font-bold text-slate-800 mb-2">{t('dashboard.task_completed_title', 'Task Completed! 🎉')}</h3>
+            <p className="text-slate-500 mb-6 font-medium">{t('dashboard.how_was_material', 'How did you find this material?')}</p>
             
             <div className="flex justify-center gap-4">
               <button 
@@ -54,7 +56,7 @@ const FeedbackModal = ({ task, onClose, onSuccess }) => {
                 <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform">
                   <Smile size={24} />
                 </div>
-                <span className="font-bold text-sm text-emerald-700">Easy</span>
+                <span className="font-bold text-sm text-emerald-700">{t('dashboard.easy', 'Easy')}</span>
               </button>
               
               <button 
@@ -65,7 +67,7 @@ const FeedbackModal = ({ task, onClose, onSuccess }) => {
                 <div className="w-12 h-12 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center group-hover:scale-110 transition-transform">
                   <Meh size={24} />
                 </div>
-                <span className="font-bold text-sm text-amber-700">Medium</span>
+                <span className="font-bold text-sm text-amber-700">{t('dashboard.medium', 'Medium')}</span>
               </button>
               
               <button 
@@ -76,11 +78,11 @@ const FeedbackModal = ({ task, onClose, onSuccess }) => {
                 <div className="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center group-hover:scale-110 transition-transform">
                   <Frown size={24} />
                 </div>
-                <span className="font-bold text-sm text-rose-700">Hard</span>
+                <span className="font-bold text-sm text-rose-700">{t('dashboard.hard', 'Hard')}</span>
               </button>
             </div>
             <p className="text-xs text-slate-400 mt-6 font-bold uppercase tracking-wider">
-              Powers your adaptive engine
+              {t('dashboard.powers_adaptive_engine', 'Powers your adaptive engine')}
             </p>
           </>
         )}

@@ -1,7 +1,9 @@
 import React from 'react';
 import { X, Play, BookOpen, PenTool, CheckCircle, ExternalLink } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const TaskDrawer = ({ task, isOpen, onClose, onComplete }) => {
+  const { t } = useTranslation();
   if (!isOpen || !task) return null;
 
   let actionSteps = [];
@@ -44,7 +46,7 @@ const TaskDrawer = ({ task, isOpen, onClose, onComplete }) => {
         {/* Expected Outcome */}
         {task.expected_outcome && (
           <div className="bg-indigo-50 border border-indigo-100 p-4 rounded-2xl">
-            <h4 className="text-sm font-bold text-indigo-800 uppercase tracking-wider mb-1">Target Outcome</h4>
+            <h4 className="text-sm font-bold text-indigo-800 uppercase tracking-wider mb-1">{t('dashboard.target_outcome', 'Target Outcome')}</h4>
             <p className="text-indigo-900 font-medium">{task.expected_outcome}</p>
           </div>
         )}
@@ -54,7 +56,7 @@ const TaskDrawer = ({ task, isOpen, onClose, onComplete }) => {
           <div>
             <h3 className="text-lg font-black text-slate-800 mb-4 flex items-center gap-2">
               <span className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600">🎯</span> 
-              Action Steps
+              {t('dashboard.action_steps', 'Action Steps')}
             </h3>
             <div className="space-y-3">
               {actionSteps.map((step, idx) => (
@@ -74,7 +76,7 @@ const TaskDrawer = ({ task, isOpen, onClose, onComplete }) => {
           <div>
             <h3 className="text-lg font-black text-slate-800 mb-4 flex items-center gap-2">
               <span className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600">✅</span> 
-              Validation Check
+              {t('dashboard.validation_check', 'Validation Check')}
             </h3>
             <div className="bg-slate-50 border-2 border-dashed border-slate-200 p-4 rounded-2xl">
               <div className="text-xs font-bold text-slate-400 uppercase mb-1">{task.validation_type || 'self-check'}</div>
@@ -88,7 +90,7 @@ const TaskDrawer = ({ task, isOpen, onClose, onComplete }) => {
           <div>
             <h3 className="text-lg font-black text-slate-800 mb-4 flex items-center gap-2">
               <span className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600">📚</span> 
-              Helpful Resources
+              {t('dashboard.helpful_resources', 'Helpful Resources')}
             </h3>
             <div className="grid grid-cols-1 gap-3">
               {resources.map((res, idx) => (
@@ -110,7 +112,7 @@ const TaskDrawer = ({ task, isOpen, onClose, onComplete }) => {
           className="w-full py-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-black text-lg transition-colors flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/30"
         >
           <CheckCircle size={24} />
-          Complete & Earn +{task.xp_reward || 10} XP
+          {t('dashboard.complete_earn', 'Complete & Earn +{{xp}} XP', { xp: task.xp_reward || 10 })}
         </button>
       </div>
     </div>

@@ -4,6 +4,8 @@ from typing import List
 from uuid import UUID
 from datetime import datetime
 import logging
+import json
+import os
 
 from app.api.dependencies import get_db, get_current_user
 from app.repositories.roadmap import roadmap_repo
@@ -34,8 +36,9 @@ async def generate_user_roadmap(
     current_user: User = Depends(get_current_user)
 ):
     target_career = career_goal.get("career", "Software Developer")
-    # Dispatch to Celery
-    roadmap_generation_task.delay(str(current_user.id), target_career)
+    language = career_goal.get("language", "en")
+    # Dispatch to Celery with language context
+    roadmap_generation_task.delay(str(current_user.id), target_career, language)
     return {"success": True, "message": "Roadmap Generation dispatched successfully."}
 
 
@@ -76,6 +79,129 @@ async def complete_task(
             await db.commit()
             
     return task
+
+
+@router.post("/translate")
+async def translate_roadmap(
+    *,
+    body: dict,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    On-the-fly translation of the user's stored roadmap.
+    Accepts { "language": "hi" | "mr" } and returns the full roadmap
+    with all text fields translated by the LLM. Content is NOT stored
+    back to the DB — English remains the source of truth.
+    """
+    import httpx
+    from sqlalchemy.future import select
+    from app.models.roadmap import RoadmapNode, Task
+
+    language = body.get("language", "en")
+    if language == "en":
+        # Just return the normal roadmap
+        nodes = await roadmap_repo.get_roadmap_for_user(db, user_id=current_user.id)
+        from app.schemas.roadmap import RoadmapNodeResponse
+        return [n.__dict__ for n in nodes]
+
+    LANGUAGE_NAMES = {"hi": "Hindi", "mr": "Marathi"}
+    language_name = LANGUAGE_NAMES.get(language, "Hindi")
+
+    api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
+        raise HTTPException(status_code=503, detail="AI translation engine offline.")
+
+    # 1. Fetch user's full roadmap from DB
+    stmt = select(RoadmapNode).where(RoadmapNode.user_id == current_user.id).order_by(RoadmapNode.created_at)
+    result = await db.execute(stmt)
+    nodes = result.scalars().all()
+
+    if not nodes:
+        return []
+
+    # 2. Build a compact JSON representation of what needs translating
+    compact = []
+    for node in nodes:
+        task_stmt = select(Task).where(Task.node_id == node.id).order_by(Task.order_index)
+        task_res = await db.execute(task_stmt)
+        tasks = task_res.scalars().all()
+        compact.append({
+            "id": str(node.id),
+            "title": node.title,
+            "description": node.description or "",
+            "tasks": [
+                {
+                    "id": str(t.id),
+                    "title": t.title,
+                    "expected_outcome": t.expected_outcome or "",
+                    "validation_criteria": t.validation_criteria or "",
+                    "action_steps": json.loads(t.action_steps) if t.action_steps else [],
+                    # Pass-through fields (not translated)
+                    "difficulty": t.difficulty,
+                    "estimated_minutes": t.estimated_minutes,
+                    "task_type": t.task_type,
+                    "order_index": t.order_index,
+                    "project_linked": t.project_linked,
+                    "skill_tags": json.loads(t.skill_tags) if t.skill_tags else [],
+                    "xp_reward": t.xp_reward,
+                    "resources": json.loads(t.resources) if t.resources else [],
+                    "is_completed": t.is_completed,
+                    "node_id": str(node.id),
+                }
+                for t in tasks
+            ]
+        })
+
+    # 3. Ask Groq to translate all text fields
+    translation_prompt = (
+        f"You are a professional translator. Translate ALL human-readable text values in the following JSON into {language_name}.\n"
+        f"Rules:\n"
+        f"- Keep ALL JSON keys exactly as-is (do NOT translate keys).\n"
+        f"- Keep enum values exactly as-is: 'Beginner', 'Intermediate', 'Advanced', 'video', 'reading', 'practice', 'project', 'quiz', 'assignment', 'self-check'.\n"
+        f"- Keep all UUIDs, numbers, booleans exactly as-is.\n"
+        f"- Translate: title, description, expected_outcome, validation_criteria, and each string inside action_steps arrays.\n"
+        f"- Output ONLY the translated JSON array. No explanation, no markdown fences.\n\n"
+        f"{json.dumps(compact, ensure_ascii=False)}"
+    )
+
+    try:
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            resp = await client.post(
+                "https://api.groq.com/openai/v1/chat/completions",
+                headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+                json={
+                    "model": "llama-3.3-70b-versatile",
+                    "messages": [{"role": "user", "content": translation_prompt}],
+                    "max_tokens": 8192,
+                    "temperature": 0.1,
+                }
+            )
+            resp.raise_for_status()
+            raw = resp.json()["choices"][0]["message"]["content"].strip()
+
+        # Strip markdown fences if present
+        if raw.startswith("```"):
+            raw = raw.split("```")[1]
+            if raw.startswith("json"):
+                raw = raw[4:]
+        if raw.endswith("```"):
+            raw = raw.rsplit("```", 1)[0]
+        raw = raw.strip()
+
+        translated = json.loads(raw)
+        return translated
+
+    except httpx.HTTPStatusError as e:
+        logger.error(f"Groq translation error: {e.response.status_code}")
+        raise HTTPException(status_code=502, detail="Translation service error.")
+    except json.JSONDecodeError as e:
+        logger.error(f"Translation JSON parse failed: {e}")
+        raise HTTPException(status_code=502, detail="Translation returned invalid JSON.")
+    except Exception as e:
+        logger.error(f"Translation failed: {e}")
+        raise HTTPException(status_code=500, detail="Translation failed.")
+
 
 @router.get("/skill-gap", response_model=None)
 async def get_skill_gap_analysis(

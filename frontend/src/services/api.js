@@ -79,7 +79,8 @@ export const roadmapService = {
   createNode: (data) => api.post('/roadmaps/nodes', data),
   getRoadmap: () => api.get('/roadmaps/'),
   getSkillGap: () => api.get('/roadmaps/skill-gap'),
-  generateRoadmap: (career) => api.post('/roadmaps/generate', { career }),
+  generateRoadmap: (career, language = 'en') => api.post('/roadmaps/generate', { career, language }),
+  translateRoadmap: (language) => api.post('/roadmaps/translate', { language }),
   completeTask: (taskId) => api.post(`/roadmaps/tasks/${taskId}/complete`),
 };
 
