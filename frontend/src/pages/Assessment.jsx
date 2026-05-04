@@ -7,71 +7,28 @@ import { useTranslation } from 'react-i18next';
 
 const STORAGE_KEY = 'pathpilot_assessment_state';
 
-const ASSESSMENT_STAGES = [
-  { id: 'inclination', title: "Quick Inclination", subtitle: "Part 1 of 4", desc: "5 rapid-fire questions to set your baseline." },
-  { id: 'objective', title: "Core Objective", subtitle: "Part 2 of 4", desc: "Comprehensive evaluation of your 10 core traits." },
-  { id: 'preference', title: "Preferences", subtitle: "Part 3 of 4", desc: "Situational scenarios and work style options." },
-  { id: 'subjective', title: "Subjective Details", subtitle: "Part 4 of 4", desc: "In-depth textual elaboration on your goals." }
-];
-
-const LIKERT_OPTIONS = [
-  { val: 1, label: "Strongly Disagree" },
-  { val: 2, label: "Disagree" },
-  { val: 3, label: "Neutral" },
-  { val: 4, label: "Agree" },
-  { val: 5, label: "Strongly Agree" }
-];
-
-const PREF_OPTIONS = {
-  37: ["Solving problems", "Designing/creating", "Helping people", "Managing/leading", "Building/repairing", "Organizing data"],
-  38: ["Mathematics", "Arts/Design", "Psychology/Sociology", "Business Studies", "Physics/Engineering", "Accounts/Statistics"],
-  39: ["Research lab", "Creative studio", "Social/community space", "Corporate/business setting", "Field/technical environment", "Office/data-driven setup"],
-  40: ["Solving complex problems", "Creating something new", "Helping others", "Achieving leadership success", "Working with machines", "Organizing systems"]
-};
-
-const INCLINATION_QUESTIONS = [
-  "I prefer to have a clear plan before starting a new project.",
-  "I am comfortable adapting to unexpected changes in my environment.",
-  "I naturally take charge and lead group discussions.",
-  "I prefer working with concrete data and numbers over abstract concepts.",
-  "I consider myself a highly creative and out-of-the-box thinker."
-].map((text, i) => ({ id: `inc${i+1}`, type: 'likert', text }));
-
-const OBJECTIVE_QUESTIONS = Array.from({length: 36}, (_, i) => ({ id: `q${i+1}`, type: 'likert', text: [
-  "I enjoy solving puzzles and brain teasers.", "I like analyzing data and finding patterns.", "Mathematics is one of my strong subjects.",
-  "I enjoy experimenting and testing ideas.", "I prefer tasks that require critical thinking.", "I like understanding how systems or machines work.",
-  "I enjoy drawing, designing, or creating art.", "I prefer creative tasks over structured ones.", "I like expressing ideas through writing or storytelling.",
-  "I enjoy music, dance, or performing arts.", "I think differently and come up with unique ideas.", "I enjoy working on design-related tools.",
-  "I enjoy helping others solve their problems.", "I like working in teams rather than alone.", "I am comfortable speaking in front of people.",
-  "I enjoy teaching or explaining concepts.", "I easily understand others' emotions.", "I prefer careers that involve interaction with people.",
-  "I like leading teams or organizing events.", "I enjoy convincing or influencing people.", "I am interested in business or startups.",
-  "I take initiative in group activities.", "I enjoy decision-making responsibilities.", "I am comfortable taking risks.",
-  "I enjoy working with tools, machines, or hardware.", "I prefer hands-on activities over theory.", "I like building or fixing things.",
-  "I enjoy outdoor or physical work.", "I am interested in engineering or technical fields.", "I prefer practical tasks over desk jobs.",
-  "I like organizing data, files, or schedules.", "I prefer structured and clear instructions.", "I pay attention to small details.",
-  "I enjoy working with numbers, records, or documentation.", "I prefer routine and stability in work.", "I like planning and managing tasks efficiently."
-][i] }));
-
-const PREFERENCE_QUESTIONS = [
-  { id: 'q37', type: 'choice', text: "Which activity do you enjoy the most?", options: PREF_OPTIONS[37] },
-  { id: 'q38', type: 'choice', text: "Which subject do you like the most?", options: PREF_OPTIONS[38] },
-  { id: 'q39', type: 'choice', text: "What kind of work environment do you prefer?", options: PREF_OPTIONS[39] },
-  { id: 'q40', type: 'choice', text: "What motivates you the most?", options: PREF_OPTIONS[40] }
-];
-
-const SUBJECTIVE_QUESTIONS = [
-  "Describe an activity you enjoy doing the most and why.", "What are your top 3 strengths? Explain briefly.", "What type of career do you currently feel interested in and why?",
-  "Describe a situation where you solved a problem successfully.", "What kind of work would make you feel satisfied every day?", "Do you prefer working alone or in a team? Explain your choice.",
-  "What are your long-term goals or aspirations?", "Describe a project or task you were passionate about.", "What skills do you think you need to improve for your future career?",
-  "If there were no restrictions, what career would you choose and why?"
-].map((text, i) => ({ id: `q${41+i}`, type: 'text', text }));
-
-const STAGE_MAP = {
-  'inclination': INCLINATION_QUESTIONS,
-  'objective': OBJECTIVE_QUESTIONS,
-  'preference': PREFERENCE_QUESTIONS,
-  'subjective': SUBJECTIVE_QUESTIONS
-};
+// We will define these inside the component to use the translation hook
+const STAGE_MAP = (t) => ({
+  'inclination': [
+    "inc1", "inc2", "inc3", "inc4", "inc5"
+  ].map((id) => ({ id, type: 'likert', text: t(`assessment.questions.${id}`) })),
+  'objective': Array.from({length: 36}, (_, i) => ({ 
+    id: `q${i+1}`, 
+    type: 'likert', 
+    text: t(`assessment.questions.q${i+1}`) 
+  })),
+  'preference': [
+    { id: 'q37', type: 'choice', text: t('assessment.preferences.activity'), options: t('assessment.pref_options.37', { returnObjects: true }) },
+    { id: 'q38', type: 'choice', text: t('assessment.preferences.subject'), options: t('assessment.pref_options.38', { returnObjects: true }) },
+    { id: 'q39', type: 'choice', text: t('assessment.preferences.environment'), options: t('assessment.pref_options.39', { returnObjects: true }) },
+    { id: 'q40', type: 'choice', text: t('assessment.preferences.motivation'), options: t('assessment.pref_options.40', { returnObjects: true }) }
+  ],
+  'subjective': Array.from({length: 10}, (_, i) => ({ 
+    id: `q${41+i}`, 
+    type: 'text', 
+    text: t(`assessment.questions.q${41+i}`) 
+  }))
+});
 
 // Load saved state from localStorage
 const loadSavedState = () => {
@@ -101,6 +58,23 @@ const Assessment = () => {
   const { user } = useAuth();
   const { t } = useTranslation();
 
+  const ASSESSMENT_STAGES = [
+    { id: 'inclination', title: t('assessment.stages.inclination.title'), subtitle: t('assessment.stages.inclination.subtitle'), desc: t('assessment.stages.inclination.desc') },
+    { id: 'objective', title: t('assessment.stages.objective.title'), subtitle: t('assessment.stages.objective.subtitle'), desc: t('assessment.stages.objective.desc') },
+    { id: 'preference', title: t('assessment.stages.preference.title'), subtitle: t('assessment.stages.preference.subtitle'), desc: t('assessment.stages.preference.desc') },
+    { id: 'subjective', title: t('assessment.stages.subjective.title'), subtitle: t('assessment.stages.subjective.subtitle'), desc: t('assessment.stages.subjective.desc') }
+  ];
+
+  const LIKERT_OPTIONS = [
+    { val: 1, label: t('assessment.options.strongly_disagree') },
+    { val: 2, label: t('assessment.options.disagree') },
+    { val: 3, label: t('assessment.options.neutral') },
+    { val: 4, label: t('assessment.options.agree') },
+    { val: 5, label: t('assessment.options.strongly_agree') }
+  ];
+
+  const stagesMap = STAGE_MAP(t);
+
   // Restore from localStorage on mount so returning users resume from where they left off
   const saved = loadSavedState();
 
@@ -112,12 +86,12 @@ const Assessment = () => {
   const [showStageComplete, setShowStageComplete] = useState(false);
 
   const currentStage = ASSESSMENT_STAGES[stageIdx];
-  const questionsList = STAGE_MAP[currentStage.id];
+  const questionsList = stagesMap[currentStage.id];
   const q = questionsList[questionIdx];
   const isLastStage = stageIdx === ASSESSMENT_STAGES.length - 1;
   const isLastQuestion = questionIdx === questionsList.length - 1;
 
-  const totalQuestions = INCLINATION_QUESTIONS.length + OBJECTIVE_QUESTIONS.length + PREFERENCE_QUESTIONS.length + SUBJECTIVE_QUESTIONS.length;
+  const totalQuestions = 55;
   const globalProgressCount = Object.keys(answers).length;
   const progress = Math.min(100, Math.round((globalProgressCount / totalQuestions) * 100));
 
@@ -144,7 +118,7 @@ const Assessment = () => {
       setQuestionIdx(prev => prev - 1);
     } else if (stageIdx > 0) {
       setStageIdx(prev => prev - 1);
-      setQuestionIdx(STAGE_MAP[ASSESSMENT_STAGES[stageIdx - 1].id].length - 1);
+      setQuestionIdx(stagesMap[ASSESSMENT_STAGES[stageIdx - 1].id].length - 1);
     }
   };
 
@@ -162,7 +136,7 @@ const Assessment = () => {
       navigate('/results');
     } catch (err) {
       console.error(err);
-      alert("Failed to submit. Please try again.");
+      alert(t('assessment.submit_failed'));
       setIsSubmitting(false);
     }
   };

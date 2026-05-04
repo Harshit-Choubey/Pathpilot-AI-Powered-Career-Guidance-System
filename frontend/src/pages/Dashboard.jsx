@@ -149,13 +149,13 @@ const Dashboard = () => {
         if (attempts >= maxAttempts) {
           clearInterval(pollInterval);
           setIsGenerating(false);
-          setGenerateError("Generation timed out.");
+          setGenerateError(t('dashboard.generation_timed_out'));
         }
       }, 3000);
     } catch (e) {
       console.error(e);
       setIsGenerating(false);
-      setGenerateError("Failed to start generation.");
+      setGenerateError(t('dashboard.failed_start_generation'));
     }
   };
 
@@ -173,7 +173,7 @@ const Dashboard = () => {
     return (
       <div className="min-h-[80vh] flex flex-col items-center justify-center">
         <div className="w-16 h-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
-        <p className="text-slate-500 font-medium">Loading your adaptive curriculum...</p>
+        <p className="text-slate-500 font-medium">{t('dashboard.loading_adaptive')}</p>
       </div>
     );
   }
@@ -198,7 +198,7 @@ const Dashboard = () => {
         {isTranslating && (
           <div className="flex items-center gap-2 text-indigo-600 text-sm font-medium animate-pulse">
             <Languages size={16} />
-            <span>Translating roadmap...</span>
+            <span>{t('dashboard.translating_roadmap')}</span>
           </div>
         )}
       </div>
@@ -264,7 +264,7 @@ const Dashboard = () => {
                 >
                   {task.project_linked && (
                     <div className="absolute top-0 right-0 bg-indigo-500 text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg uppercase tracking-wider">
-                      Project
+                      {t('dashboard.project')}
                     </div>
                   )}
                   
@@ -284,7 +284,9 @@ const Dashboard = () => {
                         task.difficulty === 'Intermediate' ? 'bg-amber-50 text-amber-700 border-amber-200' :
                         'bg-rose-50 text-rose-700 border-rose-200'
                       }`}>
-                        {task.difficulty}
+                        {task.difficulty === 'Beginner' ? t('dashboard.beginner') : 
+                         task.difficulty === 'Intermediate' ? t('dashboard.intermediate') : 
+                         t('dashboard.advanced')}
                       </span>
                       
                       {parseTags(task.skill_tags).slice(0, 2).map((tag, i) => (
