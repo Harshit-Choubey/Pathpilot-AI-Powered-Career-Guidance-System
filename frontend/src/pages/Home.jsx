@@ -82,8 +82,8 @@ const Home = () => {
               <div className="bg-indigo-100 w-12 h-12 rounded-xl flex items-center justify-center text-indigo-600 mb-6">
                 <Scale size={24} />
               </div>
-              <h3 className="text-xl font-bold text-slate-800 mb-3">Career Comparison</h3>
-              <p className="text-slate-600">Compare different career paths side-by-side to make informed decisions</p>
+              <h3 className="text-xl font-bold text-slate-800 mb-3">{t('home.feature4_title', 'Career Comparison')}</h3>
+              <p className="text-slate-600">{t('home.feature4_desc', 'Compare different career paths side-by-side to make informed decisions')}</p>
             </div>
             
             {/* Feature 5 */}
@@ -91,8 +91,8 @@ const Home = () => {
               <div className="bg-indigo-100 w-12 h-12 rounded-xl flex items-center justify-center text-indigo-600 mb-6">
                 <MessageSquare size={24} />
               </div>
-              <h3 className="text-xl font-bold text-slate-800 mb-3">AI Chatbot Guide</h3>
-              <p className="text-slate-600">24/7 conversational AI assistant to answer all your career-related questions</p>
+              <h3 className="text-xl font-bold text-slate-800 mb-3">{t('home.feature5_title', 'AI Chatbot Guide')}</h3>
+              <p className="text-slate-600">{t('home.feature5_desc', '24/7 conversational AI assistant to answer all your career-related questions')}</p>
             </div>
             
             {/* Feature 6 */}
@@ -100,8 +100,8 @@ const Home = () => {
               <div className="bg-indigo-100 w-12 h-12 rounded-xl flex items-center justify-center text-indigo-600 mb-6">
                 <BookOpen size={24} />
               </div>
-              <h3 className="text-xl font-bold text-slate-800 mb-3">Learning Pathways</h3>
-              <p className="text-slate-600">Structured learning paths with courses and resources for your chosen career</p>
+              <h3 className="text-xl font-bold text-slate-800 mb-3">{t('home.feature6_title', 'Learning Pathways')}</h3>
+              <p className="text-slate-600">{t('home.feature6_desc', 'Structured learning paths with courses and resources for your chosen career')}</p>
             </div>
           </div>
         </div>
@@ -111,7 +111,7 @@ const Home = () => {
       <section className="py-20 bg-slate-50 border-t border-slate-100">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-slate-900">Our Values</h2>
+            <h2 className="text-3xl font-bold text-slate-900">{t('home.values_title', 'Our Values')}</h2>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -119,32 +119,32 @@ const Home = () => {
               <div className="bg-indigo-100 w-10 h-10 rounded-lg flex items-center justify-center text-indigo-600 mb-4">
                 <Heart size={20} />
               </div>
-              <h4 className="font-bold text-slate-800 mb-2">Student-Centric</h4>
-              <p className="text-sm text-slate-500">Every decision we make prioritizes the success and well-being of students.</p>
+              <h4 className="font-bold text-slate-800 mb-2">{t('home.value_student_centric', 'Student-Centric')}</h4>
+              <p className="text-sm text-slate-500">{t('home.value_student_centric_desc', 'Every decision we make prioritizes the success and well-being of students.')}</p>
             </div>
             
             <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
               <div className="bg-indigo-100 w-10 h-10 rounded-lg flex items-center justify-center text-indigo-600 mb-4">
                 <Users size={20} />
               </div>
-              <h4 className="font-bold text-slate-800 mb-2">Inclusivity</h4>
-              <p className="text-sm text-slate-500">Quality career guidance should be accessible to every student, everywhere.</p>
+              <h4 className="font-bold text-slate-800 mb-2">{t('home.value_inclusivity', 'Inclusivity')}</h4>
+              <p className="text-sm text-slate-500">{t('home.value_inclusivity_desc', 'Quality career guidance should be accessible to every student, everywhere.')}</p>
             </div>
             
             <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
               <div className="bg-indigo-100 w-10 h-10 rounded-lg flex items-center justify-center text-indigo-600 mb-4">
                 <Sparkles size={20} />
               </div>
-              <h4 className="font-bold text-slate-800 mb-2">Innovation</h4>
-              <p className="text-sm text-slate-500">Leveraging cutting edge AI technology to provide personalized guidance.</p>
+              <h4 className="font-bold text-slate-800 mb-2">{t('home.value_innovation', 'Innovation')}</h4>
+              <p className="text-sm text-slate-500">{t('home.value_innovation_desc', 'Leveraging cutting edge AI technology to provide personalized guidance.')}</p>
             </div>
             
             <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
               <div className="bg-indigo-100 w-10 h-10 rounded-lg flex items-center justify-center text-indigo-600 mb-4">
                 <Award size={20} />
               </div>
-              <h4 className="font-bold text-slate-800 mb-2">Excellence</h4>
-              <p className="text-sm text-slate-500">Committed to delivering the highest quality career counseling experience.</p>
+              <h4 className="font-bold text-slate-800 mb-2">{t('home.value_excellence', 'Excellence')}</h4>
+              <p className="text-sm text-slate-500">{t('home.value_excellence_desc', 'Committed to delivering the highest quality career counseling experience.')}</p>
             </div>
           </div>
         </div>
@@ -154,46 +154,46 @@ const Home = () => {
       <section className="py-20 bg-white border-t border-slate-100">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-slate-50 rounded-3xl p-8 md:p-12 border border-slate-100 shadow-sm">
-            <h2 className="text-2xl font-bold text-center text-slate-900 mb-10">How PathPilot Works</h2>
+            <h2 className="text-2xl font-bold text-center text-slate-900 mb-10">{t('home.how_it_works_title', 'How PathPilot Works')}</h2>
             
             <div className="space-y-8">
               <div className="flex gap-4">
                 <div className="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm">1</div>
                 <div>
-                  <h4 className="font-bold text-slate-800 mb-1">Complete Assessment</h4>
-                  <p className="text-sm text-slate-500">Take our psychometric tests based on RIASEC and Multiple Intelligence.</p>
+                  <h4 className="font-bold text-slate-800 mb-1">{t('home.step1_title', 'Complete Assessment')}</h4>
+                  <p className="text-sm text-slate-500">{t('home.step1_desc', 'Take our psychometric tests based on RIASEC and Multiple Intelligence.')}</p>
                 </div>
               </div>
               
               <div className="flex gap-4">
                 <div className="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm">2</div>
                 <div>
-                  <h4 className="font-bold text-slate-800 mb-1">AI Analysis</h4>
-                  <p className="text-sm text-slate-500">Our AI analyzes your responses to understand your strengths and interests.</p>
+                  <h4 className="font-bold text-slate-800 mb-1">{t('home.step2_title', 'AI Analysis')}</h4>
+                  <p className="text-sm text-slate-500">{t('home.step2_desc', 'Our AI analyzes your responses to understand your strengths and interests.')}</p>
                 </div>
               </div>
               
               <div className="flex gap-4">
                 <div className="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm">3</div>
                 <div>
-                  <h4 className="font-bold text-slate-800 mb-1">Get Recommendations</h4>
-                  <p className="text-sm text-slate-500">Receive personalized career matches with details about each path.</p>
+                  <h4 className="font-bold text-slate-800 mb-1">{t('home.step3_title', 'Get Recommendations')}</h4>
+                  <p className="text-sm text-slate-500">{t('home.step3_desc', 'Receive personalized career matches with details about each path.')}</p>
                 </div>
               </div>
               
               <div className="flex gap-4">
                 <div className="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm">4</div>
                 <div>
-                  <h4 className="font-bold text-slate-800 mb-1">Plan Your Journey</h4>
-                  <p className="text-sm text-slate-500">Explore skill gaps, learning paths, and growth opportunities.</p>
+                  <h4 className="font-bold text-slate-800 mb-1">{t('home.step4_title', 'Plan Your Journey')}</h4>
+                  <p className="text-sm text-slate-500">{t('home.step4_desc', 'Explore skill gaps, learning paths, and growth opportunities.')}</p>
                 </div>
               </div>
               
               <div className="flex gap-4">
                 <div className="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm">5</div>
                 <div>
-                  <h4 className="font-bold text-slate-800 mb-1">Ongoing Support</h4>
-                  <p className="text-sm text-slate-500">Access the chatbot anytime for guidance and progress tracking.</p>
+                  <h4 className="font-bold text-slate-800 mb-1">{t('home.step5_title', 'Ongoing Support')}</h4>
+                  <p className="text-sm text-slate-500">{t('home.step5_desc', 'Access the chatbot anytime for guidance and progress tracking.')}</p>
                 </div>
               </div>
             </div>

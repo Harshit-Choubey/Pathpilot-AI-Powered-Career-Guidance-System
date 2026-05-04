@@ -1,8 +1,10 @@
 import { Outlet } from 'react-router-dom';
 import Navbar from './Navbar';
 import GlobalChatbot from './GlobalChatbot';
+import { useTranslation } from 'react-i18next';
 
 const Layout = () => {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -11,7 +13,7 @@ const Layout = () => {
       </main>
       <footer className="bg-white border-t border-slate-200 py-8 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-slate-500">
-          <p>© {new Date().getFullYear()} PathPilot AI. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} PathPilot AI. {t('layout.all_rights_reserved', 'All rights reserved.')}</p>
         </div>
       </footer>
       <GlobalChatbot />
