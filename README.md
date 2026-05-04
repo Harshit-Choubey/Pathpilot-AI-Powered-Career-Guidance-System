@@ -22,10 +22,12 @@ We've bundled everything you need to run the entire cluster (Frontend, Backend, 
 
 > [!NOTE]
 > The start scripts automatically initialize your `.env` variables, execute database migrations, build the React frontend, and boot the entire web application inside Docker.
+>
+> If Docker is not running, the script exits with a clear error so you can start Docker Desktop first.
 
 ### What to expect:
 * The web app will be available at: **http://localhost:5173**
-* To use Generative AI features (like "Chat with Mentor" or "Generate Roadmap"), make sure to add your **Groq API Key** to `backend/.env` under `GROQ_API_KEY=your_key` (if it isn't already there).
+* To use Generative AI features (like "Chat with Mentor" or "Generate Roadmap"), add your **Groq API Key** to `backend/.env` under `GROQ_API_KEY=your_key`.
 
 ## 🛠️ Important Links & Health Checks
 
