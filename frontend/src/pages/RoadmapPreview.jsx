@@ -177,7 +177,9 @@ const RoadmapPreview = () => {
                             task.difficulty === 'Intermediate' ? 'bg-amber-50 text-amber-700' :
                             'bg-rose-50 text-rose-700'
                           }`}>
-                            {task.difficulty}
+                            {task.difficulty === 'Beginner' ? t('dashboard.beginner') : 
+                             task.difficulty === 'Intermediate' ? t('dashboard.intermediate') : 
+                             t('dashboard.advanced')}
                           </span>
                           {task.project_linked && (
                             <span className="bg-indigo-100 text-indigo-700 px-2 py-1 rounded">{t('dashboard.project', 'Project')}</span>
@@ -202,7 +204,7 @@ const RoadmapPreview = () => {
             onClick={() => navigate('/dashboard')}
             className="w-full sm:w-auto bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-black py-4 px-10 rounded-xl shadow-lg shadow-indigo-200 transform transition hover:-translate-y-1"
           >
-            {t('dashboard.start_execution_engine', 'Start Execution Engine')}
+            {t('dashboard.start_execution_engine')}
           </button>
         </div>
 

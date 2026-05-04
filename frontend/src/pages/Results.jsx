@@ -147,10 +147,10 @@ const Results = () => {
     return (
       <div className="flex-1 flex flex-col items-center justify-center bg-slate-50 gap-5 min-h-[500px]">
         <AlertCircle size={48} className="text-amber-400" />
-        <h2 className="text-2xl font-bold text-slate-800">No predictions available</h2>
-        <p className="text-slate-500">The ML model didn't return predictions. Please retake the assessment.</p>
+        <h2 className="text-2xl font-bold text-slate-800">{t('results.no_predictions', 'No predictions available')}</h2>
+        <p className="text-slate-500">{t('results.no_predictions_desc', "The ML model didn't return predictions. Please retake the assessment.")}</p>
         <Link to="/assessment" className="bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-indigo-700 transition">
-          Retake Assessment
+          {t('results.retake_assessment')}
         </Link>
       </div>
     );

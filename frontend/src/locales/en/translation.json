@@ -48,7 +48,52 @@
     "want_new_path": "Want a new path?",
     "regenerate_desc": "Regenerate your AI curriculum based on your latest assessment.",
     "regenerate": "Regenerate Curriculum",
-    "generating": "Generating..."
+    "generating": "Generating...",
+    "translating_roadmap": "Translating roadmap...",
+    "project": "Project",
+    "loading_adaptive": "Loading your adaptive curriculum...",
+    "building_curriculum": "Building your {{career}} Curriculum",
+    "mapping_phases": "Our AI is mapping out your phases, detailing action steps, and structuring your daily execution missions...",
+    "takes_30_seconds": "Usually takes ~30 seconds",
+    "generation_timeout": "Generation Timeout",
+    "timeout_desc": "The AI curriculum took too long to build. This can happen during peak loads.",
+    "try_again": "Try Again",
+    "curriculum_generated": "Curriculum Generated",
+    "your_masterplan": "Your {{career}} Masterplan",
+    "review_syllabus": "Review your tailored syllabus below. When you're ready, initialize the gamified execution engine to start tracking your daily progress.",
+    "phase_number": "Phase {{number}}",
+    "modules": "{{length}} Modules",
+    "ready_begin": "Ready to begin?",
+    "start_missions_xp": "Start your daily missions and earn XP.",
+    "start_execution_engine": "Start Execution Engine",
+    "beginner": "Beginner",
+    "intermediate": "Intermediate",
+    "advanced": "Advanced",
+    "generation_timed_out": "Generation timed out.",
+    "failed_start_generation": "Failed to start generation."
+  },
+  "skill_gap": {
+    "title": "Skill Gap Analysis",
+    "subtitle": "Identify the skills you need and get personalized course recommendations",
+    "loading": "Analyzing Your Skills Universe...",
+    "overall_progress": "Overall Skill Progress",
+    "complete_profile": "Complete Profile",
+    "for_career": "For {{career}}",
+    "skills_mastered": "Skills Mastered",
+    "in_progress": "In Progress",
+    "to_learn": "To Learn",
+    "total_skills": "Total Skills",
+    "mastered_title": "Skills You've Mastered",
+    "learn_title": "Skills to Learn",
+    "priority_high": "High Priority",
+    "priority_medium": "Medium Priority",
+    "estimated": "estimated",
+    "start_learning": "Start Learning Today",
+    "cta_desc": "Get personalized course recommendations based on your skill gaps.",
+    "browse_courses": "Browse Courses",
+    "recommended_courses": "Recommended Courses",
+    "view_course": "View Course",
+    "hours": "hours"
   },
   "results": {
     "analysis_complete": "Analysis Complete",
@@ -80,7 +125,8 @@
     "retry": "Retry",
     "retake_assessment": "Retake Assessment",
     "you_have": "You have",
-    "answers_saved": "answers saved. Continue from where you left off to improve your ML prediction accuracy."
+    "answers_saved": "answers saved. Continue from where you left off to improve your ML prediction accuracy.",
+    "no_predictions": "No predictions available"
   },
   "assessment": {
     "overall_progress": "Overall Progress",
@@ -102,11 +148,135 @@
     "continue_to": "Continue to",
     "more_accurate": "More accurate results",
     "save_dashboard": "Save & go to Dashboard",
-    "save_go_dashboard": "Save & go to Dashboard",
+    "save_go_dashboard": "Save & Go to Dashboard",
+    "text_placeholder": "Type your thoughts here...",
     "launching": "Launching ML Predictor...",
     "profile_queued": "Your profile is being queued. Redirecting to results...",
     "full_assessment_complete": "You've completed the full psychometric assessment! Submit now to receive your complete career analysis.",
-    "partial_analysis": "You can see your partial career analysis now, or continue to get a more accurate result."
+    "partial_analysis": "You can see your partial career analysis now, or continue to get a more accurate result.",
+    "stages": {
+      "inclination": {
+        "title": "Quick Inclination",
+        "subtitle": "Part 1 of 4",
+        "desc": "5 rapid-fire questions to set your baseline."
+      },
+      "objective": {
+        "title": "Core Objective",
+        "subtitle": "Part 2 of 4",
+        "desc": "Comprehensive evaluation of your 10 core traits."
+      },
+      "preference": {
+        "title": "Preferences",
+        "subtitle": "Part 3 of 4",
+        "desc": "Situational scenarios and work style options."
+      },
+      "subjective": {
+        "title": "Subjective Details",
+        "subtitle": "Part 4 of 4",
+        "desc": "In-depth textual elaboration on your goals."
+      }
+    },
+    "options": {
+      "strongly_disagree": "Strongly Disagree",
+      "disagree": "Disagree",
+      "neutral": "Neutral",
+      "agree": "Agree",
+      "strongly_agree": "Strongly Agree"
+    },
+    "preferences": {
+      "activity": "Which activity do you enjoy the most?",
+      "subject": "Which subject do you like the most?",
+      "environment": "What kind of work environment do you prefer?",
+      "motivation": "What motivates you the most?"
+    },
+    "pref_options": {
+      "37": [
+        "Solving problems",
+        "Designing/creating",
+        "Helping people",
+        "Managing/leading",
+        "Building/repairing",
+        "Organizing data"
+      ],
+      "38": [
+        "Mathematics",
+        "Arts/Design",
+        "Psychology/Sociology",
+        "Business Studies",
+        "Physics/Engineering",
+        "Accounts/Statistics"
+      ],
+      "39": [
+        "Research lab",
+        "Creative studio",
+        "Social/community space",
+        "Corporate/business setting",
+        "Field/technical environment",
+        "Office/data-driven setup"
+      ],
+      "40": [
+        "Solving complex problems",
+        "Creating something new",
+        "Helping others",
+        "Achieving leadership success",
+        "Working with machines",
+        "Organizing systems"
+      ]
+    },
+    "questions": {
+      "inc1": "I prefer to have a clear plan before starting a new project.",
+      "inc2": "I am comfortable adapting to unexpected changes in my environment.",
+      "inc3": "I naturally take charge and lead group discussions.",
+      "inc4": "I prefer working with concrete data and numbers over abstract concepts.",
+      "inc5": "I consider myself a highly creative and out-of-the-box thinker.",
+      "q1": "I enjoy solving puzzles and brain teasers.",
+      "q2": "I like analyzing data and finding patterns.",
+      "q3": "Mathematics is one of my strong subjects.",
+      "q4": "I enjoy experimenting and testing ideas.",
+      "q5": "I prefer tasks that require critical thinking.",
+      "q6": "I like understanding how systems or machines work.",
+      "q7": "I enjoy drawing, designing, or creating art.",
+      "q8": "I prefer creative tasks over structured ones.",
+      "q9": "I like expressing ideas through writing or storytelling.",
+      "q10": "I enjoy music, dance, or performing arts.",
+      "q11": "I think differently and come up with unique ideas.",
+      "q12": "I enjoy working on design-related tools.",
+      "q13": "I enjoy helping others solve their problems.",
+      "q14": "I like working in teams rather than alone.",
+      "q15": "I am comfortable speaking in front of people.",
+      "q16": "I enjoy teaching or explaining concepts.",
+      "q17": "I easily understand others' emotions.",
+      "q18": "I prefer careers that involve interaction with people.",
+      "q19": "I like leading teams or organizing events.",
+      "q20": "I enjoy convincing or influencing people.",
+      "q21": "I am interested in business or startups.",
+      "q22": "I take initiative in group activities.",
+      "q23": "I enjoy decision-making responsibilities.",
+      "q24": "I am comfortable taking risks.",
+      "q25": "I enjoy working with tools, machines, or hardware.",
+      "q26": "I prefer hands-on activities over theory.",
+      "q27": "I like building or fixing things.",
+      "q28": "I enjoy outdoor or physical work.",
+      "q29": "I am interested in engineering or technical fields.",
+      "q30": "I prefer practical tasks over desk jobs.",
+      "q31": "I like organizing data, files, or schedules.",
+      "q32": "I prefer structured and clear instructions.",
+      "q33": "I pay attention to small details.",
+      "q34": "I enjoy working with numbers, records, or documentation.",
+      "q35": "I prefer routine and stability in work.",
+      "q36": "I like planning and managing tasks efficiently.",
+      "q41": "Describe an activity you enjoy doing the most and why.",
+      "q42": "What are your top 3 strengths? Explain briefly.",
+      "q43": "What type of career do you currently feel interested in and why?",
+      "q44": "Describe a situation where you solved a problem successfully.",
+      "q45": "What kind of work would make you feel satisfied every day?",
+      "q46": "Do you prefer working alone or in a team? Explain your choice.",
+      "q47": "What are your long-term goals or aspirations?",
+      "q48": "Describe a project or task you were passionate about.",
+      "q49": "What skills do you think you need to improve for your future career?",
+      "q50": "If there were no restrictions, what career would you choose and why?"
+    },
+    "submit_failed": "Failed to submit. Please try again."
   },
   "chat": {
     "greeting": "Hi! I'm your PathPilot AI Mentor. I can help you with your daily missions, explain concepts, or adjust your roadmap. What are we working on today?",
@@ -122,7 +292,13 @@
     "password": "Password",
     "submit": "Sign In",
     "no_account": "Don't have an account?",
-    "signup_link": "Sign up"
+    "signup_link": "Sign up",
+    "welcome_back": "Welcome back",
+    "signup_today": "Sign up today",
+    "email_placeholder": "you@example.com",
+    "signing_in": "Signing in...",
+    "sign_in": "Sign in",
+    "error_default": "Invalid email or password. Please try again."
   },
   "signup": {
     "title": "Begin your journey",
@@ -132,6 +308,35 @@
     "password": "Password",
     "submit": "Create Account",
     "have_account": "Already have an account?",
-    "login_link": "Sign in"
+    "login_link": "Sign in",
+    "create_account": "Create an account",
+    "already_have_account": "Already have an account?",
+    "sign_in": "Sign in",
+    "fullname_placeholder": "Alex Doe",
+    "email_placeholder": "alex@example.com",
+    "creating_account": "Creating account...",
+    "sign_up": "Sign up",
+    "password_length": "Password must be at least 8 characters long.",
+    "failed_create": "Failed to create account"
+  },
+  "chatbot": {
+    "title": "AI Mentor",
+    "online": "Online",
+    "input_placeholder": "Ask your mentor..."
+  },
+  "compare": {
+    "loading": "Loading Comparisons...",
+    "title": "Career Comparison",
+    "subtitle": "Compare different career paths side-by-side to make an informed decision",
+    "top_match": "Top Match",
+    "match": "Match",
+    "salary_range": "Salary Range",
+    "job_growth": "Job Growth",
+    "time_start": "Time to Start",
+    "experience": "Experience",
+    "advantages": "Advantages",
+    "challenges": "Challenges",
+    "view_details": "View Details",
+    "start_learning": "Start Learning Path"
   }
 }

@@ -2,8 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useChat } from '../context/ChatContext';
 import { MessageSquare, X, Send, Bot, User, ChevronDown } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const GlobalChatbot = () => {
+  const { t } = useTranslation();
   const { isOpen, toggleChat, closeChat, messages, sendMessage, isLoading, sendQuickPrompt, pageContext } = useChat();
   const [input, setInput] = useState('');
   const messagesEndRef = useRef(null);
@@ -28,29 +30,29 @@ const GlobalChatbot = () => {
     const page = pageContext.page;
     if (page === 'Dashboard') {
       return [
-        "How do I complete my active task?",
-        "Can you make today's tasks easier?",
-        "I'm feeling unmotivated."
+        t('chatbot.quick_dash_1', "How do I complete my active task?"),
+        t('chatbot.quick_dash_2', "Can you make today's tasks easier?"),
+        t('chatbot.quick_dash_3', "I'm feeling unmotivated.")
       ];
     }
     if (page === 'Results') {
       return [
-        "Why is this my top career match?",
-        "What's the earning potential?",
-        "Show me a typical day in this career."
+        t('chatbot.quick_res_1', "Why is this my top career match?"),
+        t('chatbot.quick_res_2', "What's the earning potential?"),
+        t('chatbot.quick_res_3', "Show me a typical day in this career.")
       ];
     }
     if (page === 'RoadmapPreview') {
       return [
-        "Explain Phase 1 in more detail.",
-        "Can I skip the basics?",
-        "How long will this take?"
+        t('chatbot.quick_road_1', "Explain Phase 1 in more detail."),
+        t('chatbot.quick_road_2', "Can I skip the basics?"),
+        t('chatbot.quick_road_3', "How long will this take?")
       ];
     }
     return [
-      "Tell me a joke about programming.",
-      "What should I learn next?",
-      "Explain a complex topic simply."
+      t('chatbot.quick_gen_1', "Tell me a joke about programming."),
+      t('chatbot.quick_gen_2', "What should I learn next?"),
+      t('chatbot.quick_gen_3', "Explain a complex topic simply.")
     ];
   };
 
@@ -97,9 +99,9 @@ const GlobalChatbot = () => {
               <Bot size={24} />
             </div>
             <div>
-              <h2 className="font-bold text-lg leading-tight">AI Mentor</h2>
+              <h2 className="font-bold text-lg leading-tight">{t('chatbot.title', 'AI Mentor')}</h2>
               <div className="text-indigo-100 text-xs flex items-center gap-1 font-medium tracking-wide">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Online
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> {t('chatbot.online', 'Online')}
               </div>
             </div>
           </div>
@@ -164,7 +166,7 @@ const GlobalChatbot = () => {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask your mentor..."
+              placeholder={t('chatbot.input_placeholder', 'Ask your mentor...')}
               className="w-full pl-5 pr-14 py-3.5 bg-slate-100/50 border border-slate-200 rounded-full focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all outline-none text-sm placeholder:text-slate-400"
             />
             <button 
