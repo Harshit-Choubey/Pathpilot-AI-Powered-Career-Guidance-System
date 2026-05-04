@@ -18,8 +18,8 @@ echo.
 echo [2/5] Checking Docker Compose command...
 docker compose version >nul 2>&1
 if errorlevel 1 (
-    echo ERROR: Docker Compose (v2) is not available.
-    echo Update Docker Desktop to a version that includes ^`docker compose^`.
+    echo ERROR: Docker Compose v2 is not available.
+    echo Update Docker Desktop to a version that includes docker compose.
     pause
     exit /b 1
 )
