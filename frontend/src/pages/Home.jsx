@@ -1,7 +1,9 @@
 import { ArrowRight, BrainCircuit, Target, BarChart2, Scale, MessageSquare, BookOpen, Heart, Users, Sparkles, Award } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const Home = () => {
+  const { t } = useTranslation();
   return (
     <div className="flex-1 flex flex-col">
       {/* Hero Section */}
@@ -10,30 +12,29 @@ const Home = () => {
           <div className="text-center max-w-3xl mx-auto">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-100 text-indigo-700 font-medium text-sm mb-8 animate-pulse">
               <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
-              AI-Powered Career Guidance
+              {t('home.badge')}
             </div>
             <h1 className="text-5xl lg:text-7xl font-extrabold text-slate-900 tracking-tight mb-8">
-              Find the career you were <br className="hidden md:block"/>
+              {t('home.hero_title')} <br className="hidden md:block"/>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
-                born to do.
+                {t('home.hero_highlight')}
               </span>
             </h1>
             <p className="text-xl text-slate-600 mb-10 leading-relaxed">
-              Take our psychometric assessment and let our advanced machine learning engine
-              predict your optimal career path, identify skill gaps, and guide your journey.
+              {t('home.hero_sub')}
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Link
                 to="/signup"
                 className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-full font-bold text-lg transition-all shadow-lg shadow-indigo-200 hover:shadow-xl hover:-translate-y-1 flex items-center justify-center gap-2"
               >
-                Take the Assessment <ArrowRight />
+                {t('home.cta_assessment')} <ArrowRight />
               </Link>
               <Link
                 to="/login"
                 className="bg-white hover:bg-slate-50 text-slate-700 px-8 py-4 rounded-full font-bold text-lg transition-all shadow-sm border border-slate-200"
               >
-                View My Results
+                {t('home.cta_results')}
               </Link>
             </div>
           </div>
@@ -44,8 +45,8 @@ const Home = () => {
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-slate-900 mb-4">Why Choose PathPilot?</h2>
-            <p className="text-slate-500">Comprehensive AI-powered tools designed to help you make informed career decisions</p>
+            <h2 className="text-3xl font-bold text-slate-900 mb-4">{t('home.why_title')}</h2>
+            <p className="text-slate-500">{t('home.why_sub')}</p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -54,8 +55,8 @@ const Home = () => {
               <div className="bg-indigo-100 w-12 h-12 rounded-xl flex items-center justify-center text-indigo-600 mb-6">
                 <BrainCircuit size={24} />
               </div>
-              <h3 className="text-xl font-bold text-slate-800 mb-3">AI-Powered Analysis</h3>
-              <p className="text-slate-600">Advanced psychometric assessments using RIASEC and Multiple Intelligence frameworks</p>
+              <h3 className="text-xl font-bold text-slate-800 mb-3">{t('home.feature1_title')}</h3>
+              <p className="text-slate-600">{t('home.feature1_desc')}</p>
             </div>
             
             {/* Feature 2 */}
@@ -63,8 +64,8 @@ const Home = () => {
               <div className="bg-indigo-100 w-12 h-12 rounded-xl flex items-center justify-center text-indigo-600 mb-6">
                 <Target size={24} />
               </div>
-              <h3 className="text-xl font-bold text-slate-800 mb-3">Personalized Matches</h3>
-              <p className="text-slate-600">Get career recommendations tailored to your unique personality, skills, and interests</p>
+              <h3 className="text-xl font-bold text-slate-800 mb-3">{t('home.feature2_title')}</h3>
+              <p className="text-slate-600">{t('home.feature2_desc')}</p>
             </div>
             
             {/* Feature 3 */}
@@ -72,8 +73,8 @@ const Home = () => {
               <div className="bg-indigo-100 w-12 h-12 rounded-xl flex items-center justify-center text-indigo-600 mb-6">
                 <BarChart2 size={24} />
               </div>
-              <h3 className="text-xl font-bold text-slate-800 mb-3">Skill Gap Analysis</h3>
-              <p className="text-slate-600">Identify the skills you need and get personalized course recommendations</p>
+              <h3 className="text-xl font-bold text-slate-800 mb-3">{t('home.feature3_title')}</h3>
+              <p className="text-slate-600">{t('home.feature3_desc')}</p>
             </div>
             
             {/* Feature 4 */}

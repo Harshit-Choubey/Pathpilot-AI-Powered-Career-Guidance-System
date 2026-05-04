@@ -21,7 +21,7 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
+        sans: ['Inter', 'Noto Sans Devanagari', 'sans-serif'],
       }
     },
   },

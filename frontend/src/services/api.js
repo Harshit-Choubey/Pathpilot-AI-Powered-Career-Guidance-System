@@ -70,19 +70,29 @@ export const careerService = {
 
 // Chatbot Service
 export const chatService = {
-  sendMessage: (message, context) => api.post('/chat', { message, context }),
+  sendMessage: (message, history = [], context = {}) => {
+    return api.post('/chat/', { message, history, context });
+  }
 };
 
 export const roadmapService = {
   createNode: (data) => api.post('/roadmaps/nodes', data),
-  getRoadmap: () => api.get('/roadmaps'),
+  getRoadmap: () => api.get('/roadmaps/'),
   getSkillGap: () => api.get('/roadmaps/skill-gap'),
-  generateRoadmap: (career) => api.post('/roadmaps/generate', { career })
+  generateRoadmap: (career) => api.post('/roadmaps/generate', { career }),
+  completeTask: (taskId) => api.post(`/roadmaps/tasks/${taskId}/complete`),
 };
 
 export const eventService = {
   track: (data) => api.post('/events/track', data),
   getAnalytics: () => api.get('/events/analytics')
+};
+
+export const progressService = {
+  getProgress: () => api.get('/progress/'),
+  submitFeedback: (data) => api.post('/progress/feedback', data),
+  getDailyMission: () => api.get('/progress/daily-mission'),
+  getSkillGraph: () => api.get('/progress/skill-graph'),
 };
 
 export default api;

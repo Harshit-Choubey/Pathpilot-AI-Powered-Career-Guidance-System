@@ -53,26 +53,26 @@ const Navbar = () => {
             {!isAuthenticated ? (
               <>
                 <Link to="/login" className="text-slate-600 hover:text-indigo-600 font-medium transition-colors">
-                  Log in
+                  {t('nav.login')}
                 </Link>
                 <Link
                   to="/signup"
                   className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-full font-medium transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
                 >
-                  Start Journey
+                  {t('nav.start_journey')}
                 </Link>
               </>
             ) : (
               <>
                 <Link to="/dashboard" className="text-slate-600 hover:text-indigo-600 font-medium transition-colors">
-                  {t('dashboard')}
+                  {t('nav.dashboard')}
                 </Link>
                 <button
                   onClick={handleLogout}
                   className="flex items-center gap-2 text-slate-600 hover:text-red-600 font-medium transition-colors"
                 >
                   <LogOut size={18} />
-                  <span>{t('logout')}</span>
+                  <span>{t('nav.logout')}</span>
                 </button>
               </>
             )}

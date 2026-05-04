@@ -1,65 +1,107 @@
-# Detailed Documentation - PathPilot
+# PathPilot: Comprehensive Technical Documentation 📖
 
-This document outlines the architecture, data models, services, and core flows of the PathPilot platform.
+Welcome to the ultimate technical manual for **PathPilot** — an AI-Powered Career Execution Operating System. This document covers every single functionality, architecture choice, and API reference for the platform.
+
+---
+
+## 🔗 Important System Links
+Once the system is running, you can monitor the health and interact with documentation directly through these links:
+
+* **Web Application:** [http://localhost:5173](http://localhost:5173)
+* **Backend API Swagger Docs:** [http://localhost:8000/api/v1/docs](http://localhost:8000/api/v1/docs) *(Monitor all endpoints, test JWT auth directly)*
+* **Backend Health Status:** [http://localhost:8000/health](http://localhost:8000/health)
+* **ML Service API Docs:** [http://localhost:8001/docs](http://localhost:8001/docs) *(Interact directly with the XGBoost/Ensemble predictor)*
+* **ML Service Health Status:** [http://localhost:8001/health](http://localhost:8001/health)
+
+---
+
+## 🌟 Complete Feature List
+
+PathPilot is designed to guide a user from absolute uncertainty to career mastery. Here is every major functionality built into the system:
+
+### 1. Secure Authentication & User Management
+* **JWT-Based Auth:** Secure token generation (`access_token`) using OAuth2 Password Bearer.
+* **HttpOnly Persistence:** Secure state handling on the frontend with automatic session timeouts and token refresh strategies.
+* **Semantic Memory Profile:** The system stores an ongoing profile of the user's weaknesses and strengths extracted from conversations.
+
+### 2. Psychometric Assessment Pipeline
+* **Iterative Form:** A multi-step UI form that captures inclinations, soft skills, technical abilities, and work-style preferences.
+* **Asynchronous Processing:** The assessment payload is offloaded to a **Celery Background Worker**, which communicates with the ML Service.
+* **Soft-Voting Ensemble Engine:** An isolated ML service uses LightGBM and XGBoost models (loaded via `.joblib`) to score the user against 15+ potential career trajectories.
+
+### 3. Hybrid AI Decision Engine (The AI Mentor)
+* **Intent Routing System:** Parses natural language to determine if a user is `comparing`, `rejecting`, or `exploring` careers.
+* **State Management:** If a user rejects a career, it is permanently logged in the PostgreSQL `UserDecisionState` table and blacklisted from future recommendations.
+* **Contextual Prompt Injection:** The system compresses the user's exact UI state (what careers they are looking at) and injects it into the LLM system prompt.
+* **Fast LLM Generation:** Uses Groq (`llama-3.1-8b-instant`) to generate empathetic, highly structured mentorship advice without hallucinating career statistics.
+
+### 4. Generative Career Roadmaps
+* **Milestone Generation:** Once a user "Locks" a career, the system queries the LLM to generate a customized, multi-phase curriculum tailored to their exact assessment weaknesses.
+* **Strict JSON Parsing:** Uses Pydantic Structured Outputs to guarantee the LLM returns perfect JSON nodes.
+
+### 5. Gamified Dashboard & Execution Tracking
+* **Task Management:** Users can track their daily missions and check off curriculum nodes.
+* **Velocity Metrics:** The system calculates XP and streak data based on the frequency and difficulty of completed tasks.
+* **Real-time State Syncing:** The React frontend automatically polls and syncs progress metrics.
+
+---
 
 ## 🏗️ System Architecture
 
-PathPilot is comprised of a decoupled microservice architecture orchestrated via Docker Compose for backend services, and a standalone Vite/React frontend.
+PathPilot is built on a highly scalable, decoupled microservice architecture. All backend services are containerized and orchestrated via **Docker Compose**.
 
-### 1. Frontend Client (`frontend/`)
-* **Tech Stack**: React 18, Vite, Tailwind CSS, React Router v6, Axios
-* **Features**: 
-    * Glassmorphic UI tailored for modern web apps.
-    * 4-Stage iterative psychometric assessment form.
-    * Real-time dashboard with dynamic fetching.
-    * Secure interceptor-based JWT handling with auto-logout features.
+### Architecture Diagram
 
-### 2. Core API Backend (`backend/`)
-* **Tech Stack**: FastAPI (Python 3.11), SQLAlchemy 2.0 (asyncpg), PostgreSQL, Pydantic v2
-* **Role**: Serves all REST endpoints for user authentication, assessment recording, task tracking, and Generative AI integrations.
-* **Database**: Uses `asyncpg` for high-concurrency API calls, and standard `psycopg2` via synchronous engine for Celery tasks.
+```mermaid
+graph TD
+    Client[Web Browser] -->|HTTP / API Requests| Frontend[React / Vite Container]
+    Frontend -->|REST API| Backend[FastAPI Backend]
+    
+    subquery[Background Processing]
+    Backend -->|Queues Task| CeleryBroker[(Redis: Broker)]
+    CeleryBroker --> CeleryWorker[Celery Worker Container]
+    CeleryWorker -->|Predict Request| MLService[ML Inference FastAPI]
+    CeleryWorker -->|Updates Status| DB[(PostgreSQL)]
+    end
+    
+    Backend -->|Read / Write| DB
+    Backend -->|Rate Limiting| CeleryBroker
+    Backend -->|LLM Prompts| GroqAPI[Groq API: llama-3.1-8b]
+```
 
-### 3. Background Task Runner (`celer_worker/` running inside `backend/`)
-* **Tech Stack**: Celery, Redis (Broker/Backend)
-* **Role**: Handles heavy loads decoupling them from the fast web requests.
-* **Tasks**:
-    * Pinging the ML Inference Service.
-    * Aggregating "Velocity" events.
-    * Generating Gemini AI Roadmaps.
+### Component Breakdown
+1. **Frontend Client (`frontend/`)**: React 18, Vite, Tailwind CSS. Containerized via Node Alpine.
+2. **Core API Backend (`backend/`)**: FastAPI, SQLAlchemy (asyncpg), PostgreSQL. Handles user state and auth.
+3. **Task Runner (`celery_worker/`)**: Offloads heavy AI/ML routing to keep the web server responsive.
+4. **ML Inference Service (`ml-service/`)**: Isolated API just for running `.joblib` model predictions.
+5. **Database Initialization**: `prestart.sh` automatically runs Alembic migrations on boot to create all PostgreSQL schemas.
 
-### 4. Machine Learning Inference Service (`ml-service/`)
-* **Tech Stack**: FastAPI, Scikit-Learn, XGBoost, LightGBM
-* **Features**: 
-    * Soft-voting ensemble model loaded via `.joblib` files.
-    * Isolated microservice to guarantee standard REST interfacing (avoiding large ML package bloat in the main API).
-* **Endpoints**: `/predict`, `/explain`.
+---
 
-## ⚙️ How Data Flows
+## ⚙️ Core Data Flows
 
-**1. Assessment Flow:**
-* The User takes a 55-question assessment.
-* The frontend aggregates this into an object and posts it to `/assessment/submit`.
-* Core Backend creates a DB entry with `status="processing"`, queues a Celery Task (`ml_inference_task`), and returns an immediate response.
-* Frontend kicks off a 4s polling loop on `/assessment/history`.
-* Celery hits the ML-Service at `http://ml_service:8001/predict` and updates the DB with predictions.
-* Frontend sees `status="completed"` and transitions the user to their results.
+### 1. Assessment Flow
+* The User takes the 55-question assessment.
+* The frontend aggregates the payload and posts it to `/api/v1/assessment/submit`.
+* Core Backend creates a DB entry with `status="processing"`, queues a Celery Task (`ml_inference_task`), and returns a `202 Accepted` response.
+* Frontend kicks off a 4s polling loop on `/api/v1/assessment/history`.
+* Celery hits the ML-Service at `http://ml_service:8001/predict`, receives predictions, and updates the PostgreSQL database.
+* Frontend sees `status="completed"` and instantly transitions the user to the Career Results page.
 
-**2. Roadmap Generation Flow:**
-* User "Locks" a career on the dashboard.
-* Core Backend triggers a call to Google's Gemini Models via the `google.genai` SDK.
-* The response is parsed into JSON nodes using a strictly validated Pydantic Structured Output schema.
-* Displayed dynamically on the user's dashboard.
+---
 
-## 🗝️ Environment Variables
+## 🗝️ Environment Variables & Secrets
 
-The system relies on variables defined in `backend/.env`:
-* `POSTGRES_USER` / `POSTGRES_PASSWORD` / `POSTGRES_DB` - Controls DB initialization.
-* `GEMINI_API_KEY` - Mandatory for AI features.
-* `SECRET_KEY` - JWT signing key. 
-* `DATABASE_URL` - Internal docker routing strings point to the `db` service.
+The system relies on variables defined in `backend/.env`. Ensure your `.env` contains:
+
+* `POSTGRES_USER` / `POSTGRES_PASSWORD` / `POSTGRES_DB` - Controls PostgreSQL initialization.
+* `GROQ_API_KEY` - **Mandatory** for the AI Mentor and Roadmap Generation features.
+* `SECRET_KEY` - Used for signing JWT authentication tokens. 
+* `DATABASE_URL` - The internal docker routing string pointing to the `db` service.
+
+---
 
 ## 🔧 Extending the Platform
 
-* **To add a new Endpoint:** Add the router inside `backend/app/api/v1/endpoints/` and register it in `api.py`.
-* **To retrain ML Models:** Enter `ml-service/`, install requirements locally, place your new dataset data inside `ml-service/data`, and run `python scripts/train_model.py`. The `.joblib` files will automatically overwrite.
-* **Styling:** CSS variables and configuration live in `frontend/tailwind.config.js` and `frontend/index.css`.
+* **To Add a New API Endpoint:** Create the router logic inside `backend/app/api/v1/endpoints/` and register it in `backend/app/api/v1/api.py`.
+* **To Retrain ML Models:** Navigate to `ml-service/`, place your new dataset CSV inside `ml-service/data`, and run `python scripts/train_model.py`. The resulting `.joblib` files will automatically overwrite the old models.

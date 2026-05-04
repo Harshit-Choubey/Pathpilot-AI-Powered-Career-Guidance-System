@@ -2,6 +2,10 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { IndianRupee, TrendingUp, Clock, Briefcase, ChevronRight, RefreshCw, AlertCircle, CheckCircle } from 'lucide-react';
 import { assessmentService } from '../services/api';
+import { useChat } from '../context/ChatContext';
+import { useTranslation } from 'react-i18next';
+
+const ASSESSMENT_STORAGE_KEY = 'pathpilot_assessment_state';
 
 // Career metadata for enriching ML results (salary, growth, etc.)
 const CAREER_META = {
@@ -22,9 +26,16 @@ const getCareerMeta = (careerName) =>
 
 const Results = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [status, setStatus] = useState('loading'); // loading | processing | completed | error | empty
   const [assessment, setAssessment] = useState(null);
   const pollRef = useRef(null);
+
+  // Check if user has a saved in-progress assessment
+  const savedProgress = (() => {
+    try { return JSON.parse(localStorage.getItem(ASSESSMENT_STORAGE_KEY)); } catch { return null; }
+  })();
+  const hasInProgress = savedProgress && Object.keys(savedProgress.answers || {}).length > 0;
 
   const fetchLatest = async () => {
     try {
@@ -59,12 +70,21 @@ const Results = () => {
     return () => clearInterval(pollRef.current);
   }, []);
 
+  const { updateContext } = useChat();
+  
+  useEffect(() => {
+    if (status === 'completed' && assessment?.ml_results?.predictions) {
+      const options = assessment.ml_results.predictions.map(p => p.career);
+      updateContext({ visible_options: options });
+    }
+  }, [status, assessment, updateContext]);
+
   // ── Loading state ────────────────────────────────────────────
   if (status === 'loading') {
     return (
       <div className="flex-1 flex flex-col items-center justify-center bg-slate-50 min-h-[500px]">
         <div className="w-14 h-14 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-5" />
-        <h2 className="text-xl font-bold text-slate-800">Loading your results...</h2>
+        <h2 className="text-xl font-bold text-slate-800">{t('results.loading')}</h2>
       </div>
     );
   }
@@ -74,10 +94,10 @@ const Results = () => {
     return (
       <div className="flex-1 flex flex-col items-center justify-center bg-slate-50 gap-5 min-h-[500px]">
         <AlertCircle size={48} className="text-amber-400" />
-        <h2 className="text-2xl font-bold text-slate-800">No Assessment Found</h2>
-        <p className="text-slate-500">You haven't completed a psychometric assessment yet.</p>
+        <h2 className="text-2xl font-bold text-slate-800">{t('results.no_assessment_title')}</h2>
+        <p className="text-slate-500">{t('results.no_assessment_desc')}</p>
         <Link to="/assessment" className="bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-indigo-700 transition">
-          Start Assessment
+          {t('results.start_assessment')}
         </Link>
       </div>
     );
@@ -89,11 +109,11 @@ const Results = () => {
       <div className="flex-1 flex flex-col items-center justify-center bg-slate-50 gap-6 min-h-[500px] px-4">
         <div className="w-20 h-20 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-slate-800 mb-2">ML Model Processing...</h2>
-          <p className="text-slate-500 max-w-md">Your psychometric profile is being analyzed by our ensemble model (XGBoost + SVM + Gradient Boosting). This takes ~30 seconds.</p>
+          <h2 className="text-2xl font-bold text-slate-800 mb-2">{t('results.processing_title')}</h2>
+          <p className="text-slate-500 max-w-md">{t('results.processing_sub')}</p>
         </div>
         <div className="flex items-center gap-2 text-sm text-indigo-600 font-medium animate-pulse">
-          <RefreshCw size={16} className="animate-spin" /> Auto-refreshing every 4 seconds...
+          <RefreshCw size={16} className="animate-spin" /> {t('results.auto_refreshing')}
         </div>
       </div>
     );
@@ -104,15 +124,18 @@ const Results = () => {
     return (
       <div className="flex-1 flex flex-col items-center justify-center bg-slate-50 gap-5 min-h-[500px]">
         <AlertCircle size={48} className="text-red-400" />
-        <h2 className="text-2xl font-bold text-slate-800">Something went wrong</h2>
-        <p className="text-slate-500">The ML pipeline encountered an error. Please try retaking the assessment.</p>
+        <h2 className="text-2xl font-bold text-slate-800">{t('results.error_title')}</h2>
+        <p className="text-slate-500">{t('results.error_desc')}</p>
         <div className="flex gap-3">
           <button onClick={fetchLatest} className="border border-slate-300 text-slate-700 px-6 py-2.5 rounded-xl font-bold hover:bg-slate-50 transition">
-            Retry
+            {t('results.retry')}
           </button>
-          <Link to="/assessment" className="bg-indigo-600 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-indigo-700 transition">
-            Retake Assessment
-          </Link>
+          <button
+            onClick={() => { localStorage.removeItem(ASSESSMENT_STORAGE_KEY); navigate('/assessment'); }}
+            className="bg-indigo-600 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-indigo-700 transition"
+          >
+            {t('results.retake_assessment')}
+          </button>
         </div>
       </div>
     );
@@ -143,13 +166,13 @@ const Results = () => {
         <div className="mb-8 flex justify-between items-end flex-wrap gap-4">
           <div>
             <div className="flex items-center gap-2 text-emerald-600 font-bold text-sm mb-2">
-              <CheckCircle size={16} /> Analysis Complete
+              <CheckCircle size={16} /> {t('results.analysis_complete')}
             </div>
-            <h1 className="text-3xl font-bold text-slate-900 mb-2">Your Career Matches</h1>
-            <p className="text-slate-600">Based on your psychometric profile, here are the careers that best match you.</p>
+            <h1 className="text-3xl font-bold text-slate-900 mb-2">{t('results.title')}</h1>
+            <p className="text-slate-600">{t('results.subtitle')}</p>
           </div>
           <Link to="/dashboard" className="text-sm text-indigo-600 font-bold hover:underline">
-            Go to Dashboard →
+            {t('results.go_to_dashboard')}
           </Link>
         </div>
 
@@ -163,7 +186,7 @@ const Results = () => {
           
           <div className="relative z-10 w-full lg:w-2/3">
             <div className="inline-flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full text-sm font-semibold mb-4 backdrop-blur-sm">
-              <span>Top Match — {top.matchPercentage?.toFixed(1)}% Compatible</span>
+              <span>{t('results.top_match')} — {top.matchPercentage?.toFixed(1)}% {t('results.compatible')}</span>
             </div>
             
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-4">
@@ -179,17 +202,20 @@ const Results = () => {
               </div>
               <div className="hidden lg:block text-right self-start mt-2">
                 <span className="text-6xl font-black text-white">{top.matchPercentage?.toFixed(0)}%</span>
-                <p className="text-indigo-100 font-medium tracking-wide">Match Score</p>
+                <p className="text-indigo-100 font-medium tracking-wide">{t('results.match_score')}</p>
               </div>
             </div>
             
             <div className="flex gap-3 flex-wrap">
               <Link to="/compare" className="inline-flex items-center gap-2 bg-white/20 hover:bg-white/30 transition-colors px-6 py-3 rounded-lg font-bold backdrop-blur-sm">
-                Compare Careers <ChevronRight size={18} />
+                {t('results.compare_careers')} <ChevronRight size={18} />
               </Link>
-              <Link to="/dashboard" className="inline-flex items-center gap-2 bg-white text-indigo-700 hover:bg-indigo-50 transition-colors px-6 py-3 rounded-lg font-bold">
-                Go to Dashboard <ChevronRight size={18} />
-              </Link>
+              <button 
+                onClick={() => navigate('/roadmap-preview', { state: { career: top.career } })}
+                className="inline-flex items-center gap-2 bg-white text-indigo-700 hover:bg-indigo-50 transition-colors px-6 py-3 rounded-lg font-bold"
+              >
+                {t('results.generate_curriculum')} <ChevronRight size={18} />
+              </button>
             </div>
           </div>
         </div>
@@ -197,7 +223,7 @@ const Results = () => {
         {/* Alternative Matches */}
         {alternatives.length > 0 && (
           <>
-            <h2 className="text-xl font-bold text-slate-800 mb-5">Other Strong Matches</h2>
+            <h2 className="text-xl font-bold text-slate-800 mb-5">{t('results.other_matches')}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {alternatives.map((alt, idx) => {
                 const meta = getCareerMeta(alt.career);
@@ -206,7 +232,7 @@ const Results = () => {
                     <div className="flex justify-between items-start mb-4">
                       <h3 className="text-xl font-bold text-slate-800">{alt.career}</h3>
                       <div className="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full text-sm font-bold">
-                        {alt.matchPercentage?.toFixed(1)}% Match
+                        {alt.matchPercentage?.toFixed(1)}% {t('results.match')}
                       </div>
                     </div>
                     
@@ -237,15 +263,47 @@ const Results = () => {
                       ))}
                     </div>
                     
-                    <Link to="/compare" className="mt-auto w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-center font-bold text-sm transition-colors flex justify-center items-center gap-2">
-                      Compare <ChevronRight size={16} />
-                    </Link>
+                    <button 
+                      onClick={() => navigate('/roadmap-preview', { state: { career: alt.career } })}
+                      className="mt-auto w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-center font-bold text-sm transition-colors flex justify-center items-center gap-2"
+                    >
+                      {t('results.generate_curriculum')} <ChevronRight size={16} />
+                    </button>
                   </div>
                 );
               })}
             </div>
           </>
         )}
+
+        {/* Further Assessment CTA */}
+        <div className="mt-12 bg-white rounded-2xl p-8 border border-slate-200 shadow-sm text-center">
+          <h2 className="text-xl font-bold text-slate-800 mb-2">
+            {hasInProgress ? t('results.continue_assessment_title') : t('results.not_satisfied_title')}
+          </h2>
+          <p className="text-slate-500 mb-6 max-w-2xl mx-auto">
+            {hasInProgress
+              ? `${t('results.you_have')} ${Object.keys(savedProgress.answers).length} ${t('results.answers_saved')}`
+              : t('results.not_satisfied_desc')
+            }
+          </p>
+          <div className="flex justify-center gap-3 flex-wrap">
+            <Link
+              to="/assessment"
+              className="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-900 text-white px-8 py-3 rounded-xl font-bold transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
+            >
+              {hasInProgress ? t('results.resume_assessment') : t('results.take_full_assessment')} <ChevronRight size={18} />
+            </Link>
+            {hasInProgress && (
+              <button
+                onClick={() => { localStorage.removeItem(ASSESSMENT_STORAGE_KEY); navigate('/assessment'); }}
+                className="inline-flex items-center gap-2 border-2 border-slate-300 text-slate-600 hover:border-slate-400 px-8 py-3 rounded-xl font-bold transition-all"
+              >
+                {t('results.start_fresh')}
+              </button>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useState } from 'react';
 
@@ -8,10 +9,15 @@ const Signup = () => {
   const [formData, setFormData] = useState({ full_name: '', email: '', password: '' });
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.full_name && formData.email && formData.password) {
+      if (formData.password.length < 8) {
+        setError("Password must be at least 8 characters long.");
+        return;
+      }
       setError(null);
       setIsLoading(true);
       try {
@@ -21,6 +27,8 @@ const Signup = () => {
         const resData = err.response?.data;
         if (resData?.details) {
           setError(resData.details.map(d => d.message).join(', '));
+        } else if (Array.isArray(resData?.detail)) {
+          setError(resData.detail.map(d => d.msg).join(', '));
         } else {
           setError(resData?.detail || resData?.error || resData?.message || "Failed to create account");
         }
@@ -76,14 +84,24 @@ const Signup = () => {
 
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
-            <input
-              type="password"
-              required
-              className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-shadow"
-              placeholder="••••••••"
-              value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                required
+                minLength={8}
+                className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 transition-shadow pr-12"
+                placeholder="••••••••"
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              />
+              <button
+                type="button"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
           </div>
 
           <button

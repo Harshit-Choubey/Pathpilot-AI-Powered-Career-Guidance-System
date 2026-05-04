@@ -1,8 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, CheckCircle, BarChart2, ArrowRight, Home } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
+import { useTranslation } from 'react-i18next';
+
+const STORAGE_KEY = 'pathpilot_assessment_state';
 
 const ASSESSMENT_STAGES = [
   { id: 'inclination', title: "Quick Inclination", subtitle: "Part 1 of 4", desc: "5 rapid-fire questions to set your baseline." },
@@ -70,15 +73,43 @@ const STAGE_MAP = {
   'subjective': SUBJECTIVE_QUESTIONS
 };
 
+// Load saved state from localStorage
+const loadSavedState = () => {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) return JSON.parse(saved);
+  } catch (e) { /* ignore */ }
+  return null;
+};
+
+// Save state to localStorage
+const saveState = (state) => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch (e) { /* ignore */ }
+};
+
+// Clear saved state (after final submission)
+const clearSavedState = () => {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch (e) { /* ignore */ }
+};
+
 const Assessment = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useTranslation();
 
-  const [stageIdx, setStageIdx] = useState(0);
-  const [questionIdx, setQuestionIdx] = useState(0);
-  const [answers, setAnswers] = useState({});
+  // Restore from localStorage on mount so returning users resume from where they left off
+  const saved = loadSavedState();
+
+  const [stageIdx, setStageIdx] = useState(saved?.stageIdx ?? 0);
+  const [questionIdx, setQuestionIdx] = useState(saved?.questionIdx ?? 0);
+  // cumulative answers across ALL phases — this is what gets sent to ML
+  const [answers, setAnswers] = useState(saved?.answers ?? {});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showStageComplete, setShowStageComplete] = useState(false); // stage completion gate
+  const [showStageComplete, setShowStageComplete] = useState(false);
 
   const currentStage = ASSESSMENT_STAGES[stageIdx];
   const questionsList = STAGE_MAP[currentStage.id];
@@ -90,6 +121,11 @@ const Assessment = () => {
   const globalProgressCount = Object.keys(answers).length;
   const progress = Math.min(100, Math.round((globalProgressCount / totalQuestions) * 100));
 
+  // Persist state on every change
+  useEffect(() => {
+    saveState({ stageIdx, questionIdx, answers });
+  }, [stageIdx, questionIdx, answers]);
+
   const handleSelect = (val) => setAnswers({ ...answers, [q.id]: val });
   const handleTextChange = (e) => setAnswers({ ...answers, [q.id]: e.target.value });
 
@@ -98,7 +134,6 @@ const Assessment = () => {
     if (!isLastQuestion) {
       setQuestionIdx(prev => prev + 1);
     } else {
-      // End of stage — show the stage complete gate
       setShowStageComplete(true);
     }
   };
@@ -113,14 +148,17 @@ const Assessment = () => {
     }
   };
 
-  // Submit current answers and navigate to results
+  // Submit ALL cumulative answers to the ML model and navigate to results
   const submitAndViewResults = async () => {
     setIsSubmitting(true);
     try {
+      // Send ALL answers collected across all phases (not just current stage)
       const stringifiedAnswers = Object.fromEntries(
         Object.entries(answers).map(([k, v]) => [k, String(v)])
       );
       await api.post('/assessment/submit', { answers: stringifiedAnswers, demographics: {} });
+      // Clear saved progress only after successful submission
+      clearSavedState();
       navigate('/results');
     } catch (err) {
       console.error(err);
@@ -129,7 +167,7 @@ const Assessment = () => {
     }
   };
 
-  // Continue to next stage
+  // Continue to next stage — keep all answers, just advance stage
   const continueToNextStage = () => {
     setShowStageComplete(false);
     setStageIdx(prev => prev + 1);
@@ -141,8 +179,8 @@ const Assessment = () => {
     return (
       <div className="flex-1 flex flex-col items-center justify-center bg-slate-50">
         <div className="w-16 h-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-6" />
-        <h2 className="text-2xl font-bold text-slate-800">Launching ML Predictor...</h2>
-        <p className="text-slate-500 mt-2">Your profile is being queued. Redirecting to results...</p>
+        <h2 className="text-2xl font-bold text-slate-800">{t('assessment.launching')}</h2>
+        <p className="text-slate-500 mt-2">{t('assessment.profile_queued')}</p>
       </div>
     );
   }
@@ -157,39 +195,39 @@ const Assessment = () => {
               <CheckCircle size={42} />
             </div>
             <h2 className="text-3xl font-bold text-slate-800 mb-2">
-              {currentStage.title} Complete!
+              {currentStage.title} {t('assessment.stage_complete')}
             </h2>
-            <p className="text-slate-500 mb-2">{currentStage.subtitle} — {Object.keys(answers).length} questions answered so far</p>
+            <p className="text-slate-500 mb-2">{currentStage.subtitle} — {Object.keys(answers).length} {t('assessment.questions_answered')}</p>
             <p className="text-slate-500 mb-10">
               {isLastStage
-                ? "You've completed the full psychometric assessment! Submit now to receive your complete career analysis."
-                : "You can see your partial career analysis now, or continue to get a more accurate result."
+                ? t('assessment.full_assessment_complete')
+                : t('assessment.partial_analysis')
               }
             </p>
 
             <div className={`grid gap-4 ${isLastStage ? 'grid-cols-1 max-w-sm mx-auto' : 'grid-cols-1 sm:grid-cols-2'}`}>
-              {/* PRIMARY: View Results */}
+              {/* PRIMARY: View Results (submits all cumulative answers) */}
               <button
                 onClick={submitAndViewResults}
                 className="flex flex-col items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-5 px-6 rounded-2xl transition shadow-lg hover:-translate-y-1"
               >
                 <BarChart2 size={28} />
-                <span className="text-lg">{isLastStage ? "Submit & View Full Results" : "See My Results Now"}</span>
+                <span className="text-lg">{isLastStage ? t('assessment.submit_full') : t('assessment.see_results_now')}</span>
                 <span className="text-indigo-200 text-sm font-normal">
-                  {isLastStage ? "Complete analysis" : "Based on answers so far"}
+                  {isLastStage ? t('assessment.complete_analysis') : `${t('assessment.based_on')} ${Object.keys(answers).length} ${t('assessment.answers')}`}
                 </span>
               </button>
 
-              {/* SECONDARY: Continue to next stage (only if not last) */}
+              {/* SECONDARY: Continue to next stage */}
               {!isLastStage && (
                 <button
                   onClick={continueToNextStage}
                   className="flex flex-col items-center gap-2 bg-white hover:bg-slate-50 text-slate-800 font-bold py-5 px-6 rounded-2xl transition border-2 border-slate-200 hover:border-indigo-300 hover:-translate-y-1"
                 >
                   <ArrowRight size={28} className="text-indigo-600" />
-                  <span className="text-lg">Continue to {ASSESSMENT_STAGES[stageIdx + 1].title}</span>
+                  <span className="text-lg">{t('assessment.continue_to')} {ASSESSMENT_STAGES[stageIdx + 1].title}</span>
                   <span className="text-slate-500 text-sm font-normal">
-                    {ASSESSMENT_STAGES[stageIdx + 1].subtitle} — More accurate results
+                    {ASSESSMENT_STAGES[stageIdx + 1].subtitle} — {t('assessment.more_accurate')}
                   </span>
                 </button>
               )}
@@ -199,7 +237,7 @@ const Assessment = () => {
                 onClick={() => navigate('/dashboard')}
                 className={`flex items-center justify-center gap-2 text-slate-500 hover:text-indigo-600 font-medium py-3 px-6 rounded-xl transition text-sm ${isLastStage ? '' : 'sm:col-span-2'}`}
               >
-                <Home size={16} /> Go to Dashboard without submitting
+                <Home size={16} /> {t('assessment.save_go_dashboard')}
               </button>
             </div>
           </div>
@@ -225,7 +263,7 @@ const Assessment = () => {
         {/* Progress */}
         <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-100 mb-6">
           <div className="flex justify-between text-sm font-bold text-slate-700 mb-2">
-            <span>Overall Progress ({globalProgressCount} / {totalQuestions})</span>
+            <span>{t('assessment.overall_progress')} ({globalProgressCount} / {totalQuestions})</span>
             <span className="text-indigo-600">{progress}%</span>
           </div>
           <div className="w-full bg-slate-100 rounded-full h-2">
@@ -246,14 +284,14 @@ const Assessment = () => {
         {/* Question Card */}
         <div className="bg-white rounded-2xl p-8 md:p-10 shadow-sm border border-slate-100 min-h-[400px] flex flex-col">
           <div className="inline-block bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-xs font-semibold tracking-wide mb-5 self-start">
-            Question {questionIdx + 1} of {questionsList.length}
+            {t('assessment.question')} {questionIdx + 1} {t('assessment.of')} {questionsList.length}
           </div>
 
           <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-2">{q.text}</h2>
           <div className="text-slate-500 text-sm mb-8">
-            {q.type === 'likert' && "Select the option that best describes you."}
-            {q.type === 'choice' && "Select your preferred option."}
-            {q.type === 'text' && "Elaborate your thoughts in the text area."}
+            {q.type === 'likert' && t('assessment.select_best')}
+            {q.type === 'choice' && t('assessment.select_preferred')}
+            {q.type === 'text' && t('assessment.elaborate')}
           </div>
 
           <div className="flex-1 space-y-3 mb-8">
@@ -291,7 +329,7 @@ const Assessment = () => {
               <textarea
                 value={answers[q.id] || ''}
                 onChange={handleTextChange}
-                placeholder="Type your answer here..."
+                placeholder={t('assessment.text_placeholder')}
                 rows={5}
                 className="w-full p-4 rounded-xl border-2 border-slate-200 focus:border-indigo-500 focus:ring-0 outline-none text-slate-700 resize-none"
               />
@@ -305,7 +343,7 @@ const Assessment = () => {
                 (stageIdx === 0 && questionIdx === 0) ? 'text-slate-300 cursor-not-allowed' : 'text-slate-600 hover:bg-slate-100'
               }`}
             >
-              <ChevronLeft size={20} /> Previous
+              <ChevronLeft size={20} /> {t('assessment.previous')}
             </button>
 
             <button onClick={handleNext} disabled={!answers[q.id]}
@@ -317,7 +355,7 @@ const Assessment = () => {
                     : 'bg-blue-600 hover:bg-blue-700 hover:shadow-md hover:-translate-y-0.5'
               }`}
             >
-              {isLastQuestion ? 'Finish Stage' : 'Next'} <ChevronRight size={20} />
+              {isLastQuestion ? t('assessment.finish_stage') : t('assessment.next')} <ChevronRight size={20} />
             </button>
           </div>
         </div>

@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     
     # External AI
     GEMINI_API_KEY: str = ""
+    GROQ_API_KEY: str = ""
     
     # CORS — restrict to real origins in production
     BACKEND_CORS_ORIGINS: List[str] = [

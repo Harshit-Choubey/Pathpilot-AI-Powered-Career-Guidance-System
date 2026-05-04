@@ -6,8 +6,8 @@ import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import Assessment from './pages/Assessment';
 import Results from './pages/Results';
+import RoadmapPreview from './pages/RoadmapPreview';
 import Compare from './pages/Compare';
-import Chatbot from './pages/Chatbot';
 import SkillGap from './pages/SkillGap';
 import { useAuth } from './context/AuthContext';
 
@@ -45,8 +45,8 @@ function App() {
         <Route path="assessment" element={<ProtectedRoute><Assessment /></ProtectedRoute>} />
         <Route path="results" element={<ProtectedRoute><Results /></ProtectedRoute>} />
         <Route path="results/:id" element={<ProtectedRoute><Results /></ProtectedRoute>} />
+        <Route path="roadmap-preview" element={<ProtectedRoute><RoadmapPreview /></ProtectedRoute>} />
         <Route path="compare" element={<ProtectedRoute><Compare /></ProtectedRoute>} />
-        <Route path="chat" element={<ProtectedRoute><Chatbot /></ProtectedRoute>} />
         <Route path="skill-gap" element={<ProtectedRoute><SkillGap /></ProtectedRoute>} />
       </Route>
     </Routes>

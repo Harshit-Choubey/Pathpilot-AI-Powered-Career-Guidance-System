@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import Navbar from './Navbar';
+import GlobalChatbot from './GlobalChatbot';
 
 const Layout = () => {
   return (
@@ -13,6 +14,7 @@ const Layout = () => {
           <p>© {new Date().getFullYear()} PathPilot AI. All rights reserved.</p>
         </div>
       </footer>
+      <GlobalChatbot />
     </div>
   );
 };
