@@ -206,6 +206,7 @@ async def translate_roadmap(
 @router.get("/skill-gap", response_model=None)
 async def get_skill_gap_analysis(
     *,
+    language: str = "en",
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
@@ -258,7 +259,7 @@ async def get_skill_gap_analysis(
     total = len(mastered) + len(to_learn) + 4 # some arbitrary total
     progress = int((len(mastered) / total) * 100)
 
-    return {
+    payload = {
         "target_career": target,
         "progress_percentage": progress,
         "mastered_count": len(mastered),
@@ -269,6 +270,43 @@ async def get_skill_gap_analysis(
         "skills_to_learn": to_learn,
         "recommended_courses": courses
     }
+
+    if language == "en":
+        return payload
+
+    # On-the-fly AI translation for the Skill Gap payload
+    LANGUAGE_NAMES = {"hi": "Hindi", "mr": "Marathi"}
+    language_name = LANGUAGE_NAMES.get(language, "Hindi")
+    
+    api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
+        return payload # Fallback to English
+
+    translation_prompt = (
+        f"You are a professional career counselor. Translate the following skill gap analysis JSON into {language_name}.\n"
+        f"Translate: target_career, mastered_skills[].name, skills_to_learn[].name, skills_to_learn[].description, recommended_courses[].title.\n"
+        f"Keep all other fields (keys, numbers, URLs, platforms) exactly as-is. Output ONLY raw JSON.\n\n"
+        f"{json.dumps(payload)}"
+    )
+
+    try:
+        import httpx
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            resp = await client.post(
+                "https://api.groq.com/openai/v1/chat/completions",
+                headers={"Authorization": f"Bearer {api_key}"},
+                json={
+                    "model": "llama-3.3-70b-versatile",
+                    "messages": [{"role": "user", "content": translation_prompt}],
+                    "temperature": 0.1
+                }
+            )
+            raw = resp.json()["choices"][0]["message"]["content"].strip()
+            if raw.startswith("```"): raw = raw.split("```")[1].replace("json", "").strip()
+            return json.loads(raw)
+    except:
+        return payload # Safety fallback
+
 
 @router.post("/adapt")
 async def trigger_adaptive_intelligence(
@@ -288,6 +326,7 @@ async def trigger_adaptive_intelligence(
 @router.get("/portfolio")
 async def generate_portfolio(
     *,
+    language: str = "en",
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
@@ -323,10 +362,14 @@ async def generate_portfolio(
             "portfolio": f"**Current Accomplishments**\n\n{context_str}\n\n*(Note: Configure GEMINI_API_KEY to synthesize this into professional resume bullet points)*"
         }
         
+    LANGUAGE_NAMES = {"en": "English", "hi": "Hindi", "mr": "Marathi"}
+    target_lang = LANGUAGE_NAMES.get(language, "English")
+
     client = genai_client.Client(api_key=api_key)
     sys_prompt = (
         "You are a professional Executive Recruiter. Take the exact list of tasks the user completed "
-        "and synthesize them into 3 highly professional Resume Bullet points focused on outcomes. "
+        f"and synthesize them into 3 highly professional Resume Bullet points focused on outcomes. "
+        f"CRITICAL: Write the response ONLY in {target_lang}. "
         "Format it in Markdown. Be concise."
     )
     full_prompt = f"{sys_prompt}\n\nHere is what I have learned/built recently:\n{context_str}"

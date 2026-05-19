@@ -23,6 +23,7 @@ class CareerResponse(CareerBase):
 
 class CareerCompareRequest(BaseModel):
     slugs: List[str]
+    language: Optional[str] = "en"
 
 class CareerCompareResponse(BaseModel):
     success: bool

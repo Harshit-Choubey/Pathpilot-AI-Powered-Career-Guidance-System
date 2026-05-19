@@ -1,5 +1,5 @@
 from typing import Optional, List, Any
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from uuid import UUID
 from datetime import datetime
 
@@ -38,8 +38,7 @@ class TaskResponse(BaseModel):
     created_at: datetime
     completed_at: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # ── RoadmapNode Schemas ───────────────────────────────────────────────────────
@@ -57,8 +56,7 @@ class RoadmapNodeResponse(BaseModel):
     created_at: datetime
     tasks: List[TaskResponse] = []
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # ── Progress Schemas ──────────────────────────────────────────────────────────
