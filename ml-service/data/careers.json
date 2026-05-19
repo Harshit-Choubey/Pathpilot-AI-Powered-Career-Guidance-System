@@ -56,7 +56,7 @@
     "educationRequired": "Design degree or bootcamp certification",
     "avgTimeToLearn": "6–12 months",
     "preferredTraits": { "analytical": 55, "technical": 50, "creative": 92, "leadership": 45, "social": 70, "riskTolerance": 50, "detail_oriented": 80, "entrepreneurial": 55, "empathy": 85, "communication": 75 },
-    "relatedCareers": ["product-manager", "graphic-designer", "software-engineer"],
+    "relatedCareers": ["product-manager", "content-creator", "software-engineer"],
     "icon": "🎨"
   },
   {
@@ -86,7 +86,7 @@
     "educationRequired": "B.Tech CS / Cybersecurity certifications",
     "avgTimeToLearn": "12–18 months",
     "preferredTraits": { "analytical": 88, "technical": 85, "creative": 55, "leadership": 50, "social": 40, "riskTolerance": 60, "detail_oriented": 90, "entrepreneurial": 40, "empathy": 35, "communication": 55 },
-    "relatedCareers": ["software-engineer", "devops-engineer", "network-engineer"],
+    "relatedCareers": ["software-engineer", "devops-engineer", "machine-learning-engineer"],
     "icon": "🔐"
   },
   {
@@ -101,7 +101,7 @@
     "educationRequired": "B.Tech CS or equivalent",
     "avgTimeToLearn": "12–18 months",
     "preferredTraits": { "analytical": 80, "technical": 90, "creative": 45, "leadership": 55, "social": 45, "riskTolerance": 65, "detail_oriented": 82, "entrepreneurial": 50, "empathy": 35, "communication": 55 },
-    "relatedCareers": ["software-engineer", "cloud-architect", "cybersecurity-analyst"],
+    "relatedCareers": ["software-engineer", "machine-learning-engineer", "cybersecurity-analyst"],
     "icon": "⚙️"
   },
   {
@@ -116,7 +116,7 @@
     "educationRequired": "BBA / MBA / B.Tech",
     "avgTimeToLearn": "6–12 months",
     "preferredTraits": { "analytical": 82, "technical": 55, "creative": 55, "leadership": 60, "social": 70, "riskTolerance": 45, "detail_oriented": 78, "entrepreneurial": 50, "empathy": 60, "communication": 82 },
-    "relatedCareers": ["product-manager", "data-scientist", "project-manager"],
+    "relatedCareers": ["product-manager", "data-scientist", "financial-analyst"],
     "icon": "📈"
   },
   {
@@ -146,7 +146,7 @@
     "educationRequired": "MBBS + MD / MS (6–10 years)",
     "avgTimeToLearn": "6–10 years",
     "preferredTraits": { "analytical": 80, "technical": 65, "creative": 45, "leadership": 65, "social": 78, "riskTolerance": 50, "detail_oriented": 88, "entrepreneurial": 35, "empathy": 92, "communication": 80 },
-    "relatedCareers": ["nurse", "biomedical-engineer", "healthcare-manager"],
+    "relatedCareers": ["nurse", "research-scientist", "teacher"],
     "icon": "🩺"
   },
   {
@@ -161,7 +161,7 @@
     "educationRequired": "B.Sc Nursing (4 years)",
     "avgTimeToLearn": "4 years",
     "preferredTraits": { "analytical": 60, "technical": 55, "creative": 40, "leadership": 55, "social": 85, "riskTolerance": 45, "detail_oriented": 80, "entrepreneurial": 30, "empathy": 95, "communication": 80 },
-    "relatedCareers": ["doctor", "healthcare-manager", "clinical-psychologist"],
+    "relatedCareers": ["doctor", "teacher", "research-scientist"],
     "icon": "🏥"
   },
   {
@@ -176,7 +176,7 @@
     "educationRequired": "B.Ed + Subject Degree",
     "avgTimeToLearn": "4–6 years",
     "preferredTraits": { "analytical": 60, "technical": 40, "creative": 70, "leadership": 65, "social": 88, "riskTolerance": 40, "detail_oriented": 65, "entrepreneurial": 35, "empathy": 88, "communication": 92 },
-    "relatedCareers": ["content-creator", "educational-psychologist", "corporate-trainer"],
+    "relatedCareers": ["content-creator", "research-scientist", "business-analyst"],
     "icon": "📚"
   },
   {
@@ -191,7 +191,7 @@
     "educationRequired": "B.Tech Civil Engineering (4 years)",
     "avgTimeToLearn": "4 years",
     "preferredTraits": { "analytical": 80, "technical": 82, "creative": 50, "leadership": 65, "social": 55, "riskTolerance": 55, "detail_oriented": 88, "entrepreneurial": 45, "empathy": 40, "communication": 60 },
-    "relatedCareers": ["mechanical-engineer", "architect", "project-manager"],
+    "relatedCareers": ["architect", "devops-engineer", "research-scientist"],
     "icon": "🏗️"
   },
   {
@@ -206,7 +206,7 @@
     "educationRequired": "LLB (3 or 5 years)",
     "avgTimeToLearn": "3–5 years",
     "preferredTraits": { "analytical": 88, "technical": 45, "creative": 65, "leadership": 72, "social": 70, "riskTolerance": 60, "detail_oriented": 85, "entrepreneurial": 55, "empathy": 60, "communication": 90 },
-    "relatedCareers": ["business-analyst", "judge", "compliance-officer"],
+    "relatedCareers": ["business-analyst", "financial-analyst", "product-manager"],
     "icon": "⚖️"
   },
   {
@@ -221,7 +221,7 @@
     "educationRequired": "No mandatory degree",
     "avgTimeToLearn": "3–12 months",
     "preferredTraits": { "analytical": 50, "technical": 50, "creative": 95, "leadership": 55, "social": 80, "riskTolerance": 78, "detail_oriented": 55, "entrepreneurial": 80, "empathy": 68, "communication": 90 },
-    "relatedCareers": ["digital-marketing-specialist", "graphic-designer", "teacher"],
+    "relatedCareers": ["digital-marketing-specialist", "ux-ui-designer", "teacher"],
     "icon": "🎬"
   },
   {
@@ -236,7 +236,7 @@
     "educationRequired": "B.Com / MBA Finance / CFA",
     "avgTimeToLearn": "12–18 months",
     "preferredTraits": { "analytical": 90, "technical": 65, "creative": 45, "leadership": 55, "social": 50, "riskTolerance": 58, "detail_oriented": 90, "entrepreneurial": 50, "empathy": 35, "communication": 65 },
-    "relatedCareers": ["business-analyst", "data-scientist", "investment-banker"],
+    "relatedCareers": ["business-analyst", "data-scientist", "product-manager"],
     "icon": "💹"
   },
   {
@@ -251,7 +251,7 @@
     "educationRequired": "B.Arch (5 years)",
     "avgTimeToLearn": "5 years + internship",
     "preferredTraits": { "analytical": 70, "technical": 72, "creative": 90, "leadership": 60, "social": 60, "riskTolerance": 55, "detail_oriented": 85, "entrepreneurial": 55, "empathy": 60, "communication": 65 },
-    "relatedCareers": ["civil-engineer", "ux-ui-designer", "interior-designer"],
+    "relatedCareers": ["civil-engineer", "ux-ui-designer", "research-scientist"],
     "icon": "🏛️"
   },
   {
@@ -266,7 +266,7 @@
     "educationRequired": "M.Sc + PhD",
     "avgTimeToLearn": "6–10 years",
     "preferredTraits": { "analytical": 95, "technical": 80, "creative": 70, "leadership": 45, "social": 40, "riskTolerance": 55, "detail_oriented": 92, "entrepreneurial": 35, "empathy": 40, "communication": 62 },
-    "relatedCareers": ["data-scientist", "machine-learning-engineer", "biomedical-engineer"],
+    "relatedCareers": ["data-scientist", "machine-learning-engineer", "software-engineer"],
     "icon": "🔬"
   }
 ]
