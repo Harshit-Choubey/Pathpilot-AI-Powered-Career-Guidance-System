@@ -1,85 +1,201 @@
+# =============================================================================
+# PathPilot — Production-Grade Docker Compose
+# =============================================================================
+# Usage:
+#   cp .env.example .env        # fill in your API keys
+#   docker compose up --build   # builds all images and starts everything
+#
+# Services:
+#   db            PostgreSQL 15  → internal port 5432
+#   redis         Redis 7        → internal port 6379
+#   ml_service    FastAPI ML     → internal port 8001
+#   backend       FastAPI API    → internal port 8000
+#   celery_worker Celery worker  → no external port
+#   frontend      Nginx + React  → http://localhost (port 80)
+# =============================================================================
+
+networks:
+  pathpilot_net:
+    driver: bridge
+
+volumes:
+  postgres_data:      # PostgreSQL data — survives container restarts
+  uploads_data:       # User file uploads — shared between backend & worker
+  logs_data:          # Application logs
+
+# =============================================================================
 services:
+
+  # ── PostgreSQL ──────────────────────────────────────────────────────────────
   db:
-    image: postgres:15
+    image: postgres:15-alpine
+    restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_USER:     ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${POSTGRES_DB:-pathpilot}
-    ports:
-      - "5432:5432"
+      POSTGRES_DB:       ${POSTGRES_DB:-pathpilot}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - pathpilot_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-pathpilot}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    # No external port exposed — only reachable inside pathpilot_net
 
+  # ── Redis ───────────────────────────────────────────────────────────────────
   redis:
     image: redis:7-alpine
-    ports:
-      - "6379:6379"
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    networks:
+      - pathpilot_net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    # No external port exposed — only reachable inside pathpilot_net
 
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    command: bash prestart.sh
-    volumes:
-      - ./backend:/app
-    ports:
-      - "8000:8000"
-    env_file:
-      - ./backend/.env
-    environment:
-      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-pathpilot}
-      - REDIS_URL=redis://redis:6379/0
-      - CELERY_BROKER_URL=redis://redis:6379/1
-      - CELERY_RESULT_BACKEND=redis://redis:6379/2
-      - EXT_ML_SERVICE_URL=http://ml_service:8001
-      - GROQ_API_KEY=${GROQ_API_KEY:-}
-    depends_on:
-      - db
-      - redis
-
-  celery_worker:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    command: celery -A app.worker.celery_app worker --loglevel=info
-    volumes:
-      - ./backend:/app
-    env_file:
-      - ./backend/.env
-    environment:
-      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-pathpilot}
-      - REDIS_URL=redis://redis:6379/0
-      - CELERY_BROKER_URL=redis://redis:6379/1
-      - CELERY_RESULT_BACKEND=redis://redis:6379/2
-      - EXT_ML_SERVICE_URL=http://ml_service:8001
-      - GROQ_API_KEY=${GROQ_API_KEY:-}
-    depends_on:
-      - db
-      - redis
-      - backend
-
+  # ── ML Service ──────────────────────────────────────────────────────────────
   ml_service:
     build:
       context: ./ml-service
       dockerfile: Dockerfile
-    ports:
-      - "8001:8001"
+    restart: unless-stopped
     environment:
-      - ENV=development
+      ENV: ${ENVIRONMENT:-development}
+    networks:
+      - pathpilot_net
+    healthcheck:
+      # Models take ~30s to load into memory on first start
+      test: ["CMD-SHELL", "curl -sf http://localhost:8001/health | grep -q ok || exit 1"]
+      interval: 30s
+      timeout: 15s
+      retries: 5
+      start_period: 60s
+    volumes:
+      - ./ml-service/models:/app/models
+      - ./datasets:/datasets
+    # No external port — backend talks to it via ml_service:8001
 
+  # ── FastAPI Backend ──────────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      # App
+      PROJECT_NAME:      "PathPilot API"
+      ENVIRONMENT:       ${ENVIRONMENT:-development}
+      SECRET_KEY:        ${SECRET_KEY:-change_me_to_a_long_random_string_in_production}
+      VERSION:           "v1"
+
+      # Database — use Docker service name "db", not localhost
+      POSTGRES_USER:     ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB:       ${POSTGRES_DB:-pathpilot}
+      DATABASE_URL:      postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-pathpilot}
+
+      # Redis / Celery — use Docker service name "redis", not localhost
+      REDIS_URL:              redis://redis:6379/0
+      CELERY_BROKER_URL:      redis://redis:6379/1
+      CELERY_RESULT_BACKEND:  redis://redis:6379/2
+
+      # ML service — use Docker service name "ml_service", not localhost
+      EXT_ML_SERVICE_URL: http://ml_service:8001
+
+      # CORS — the browser connects to localhost:80 (Nginx)
+      BACKEND_CORS_ORIGINS: '["http://localhost","http://localhost:80","http://127.0.0.1"]'
+
+      # AI API keys — loaded from root .env file (never hardcode here)
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GROQ_API_KEY:   ${GROQ_API_KEY:-}
+    volumes:
+      - uploads_data:/app/uploads
+      - logs_data:/app/logs
+    networks:
+      - pathpilot_net
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      ml_service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8000/health || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+      start_period: 45s
+
+  # ── Celery Worker ────────────────────────────────────────────────────────────
+  celery_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    # Override CMD — no migrations needed, just start the worker
+    command: >
+      celery -A app.worker.celery_app worker
+      --loglevel=info
+      --concurrency=2
+      --max-tasks-per-child=100
+    environment:
+      # Must match backend environment exactly
+      ENVIRONMENT:       ${ENVIRONMENT:-development}
+      SECRET_KEY:        ${SECRET_KEY:-change_me_to_a_long_random_string_in_production}
+      DATABASE_URL:      postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-pathpilot}
+      REDIS_URL:              redis://redis:6379/0
+      CELERY_BROKER_URL:      redis://redis:6379/1
+      CELERY_RESULT_BACKEND:  redis://redis:6379/2
+      EXT_ML_SERVICE_URL: http://ml_service:8001
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GROQ_API_KEY:   ${GROQ_API_KEY:-}
+    volumes:
+      - uploads_data:/app/uploads
+      - logs_data:/app/logs
+    networks:
+      - pathpilot_net
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "celery -A app.worker.celery_app inspect ping -d celery@$$HOSTNAME --timeout 5 || exit 1"]
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 30s
+
+  # ── Frontend (Nginx + React build) ──────────────────────────────────────────
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        # Tells Vite to use relative /api/v1 path — Nginx handles the proxy
+        VITE_API_URL: /api/v1
+    restart: unless-stopped
     ports:
-      - "5173:5173"
-    environment:
-      - VITE_API_URL=http://localhost:8000/api/v1
+      - "${FRONTEND_PORT:-80}:80"
+    networks:
+      - pathpilot_net
     depends_on:
-      - backend
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-
-volumes:
-  postgres_data:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost/nginx-health || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 3
+      start_period: 15s

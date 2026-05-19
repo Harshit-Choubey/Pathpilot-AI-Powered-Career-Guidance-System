@@ -1,0 +1,74 @@
+# CodeRabbit Configuration for PathPilot
+# Docs: https://docs.coderabbit.ai/getting-started/configure-coderabbit
+
+language: "en-US"
+
+reviews:
+  # Auto-review every PR
+  auto_review:
+    enabled: true
+    drafts: false           # Skip draft PRs
+    base_branches:
+      - "main"
+      - "develop"
+
+  # What CodeRabbit should focus on for PathPilot
+  profile: "chill"          # Options: chill | assertive
+  request_changes_workflow: false
+
+  # Path filters — skip generated/vendor files
+  path_filters:
+    - "!**/node_modules/**"
+    - "!**/.venv/**"
+    - "!**/venv/**"
+    - "!**/dist/**"
+    - "!**/alembic/versions/**"  # Auto-generated DB migrations
+    - "!**/__pycache__/**"
+    - "!**/datasets/**"          # Raw data files
+
+  path_instructions:
+    # Backend FastAPI rules
+    - path: "backend/app/**/*.py"
+      instructions: |
+        - This is a FastAPI backend using async SQLAlchemy (asyncpg) and Alembic.
+        - Flag any synchronous DB calls inside async routes (missing `await`).
+        - Check that all endpoints use dependency injection (`Depends(get_db)`) — never create sessions inline.
+        - Ensure all Pydantic models use `model_config = ConfigDict(...)` (Pydantic v2 style), not `class Config`.
+        - Warn if secrets or API keys are hardcoded.
+        - Check that JWT auth middleware is applied to protected routes.
+
+    # Celery worker tasks
+    - path: "backend/app/worker/**/*.py"
+      instructions: |
+        - These are Celery async tasks. Flag any blocking I/O (requests, SQLAlchemy sync calls) without proper handling.
+        - Ensure tasks have `bind=True` and use `self.retry()` for transient errors.
+        - Check for missing `max_retries` and `default_retry_delay`.
+
+    # ML Service
+    - path: "ml-service/**/*.py"
+      instructions: |
+        - This is a FastAPI ML microservice using scikit-learn, XGBoost, and SHAP.
+        - Flag model loading inside request handlers — models should be loaded at startup with `@app.on_event("startup")`.
+        - Check that input validation uses Pydantic schemas, not raw dicts.
+
+    # React Frontend
+    - path: "frontend/src/**/*.{js,jsx}"
+      instructions: |
+        - This is a React 18 app with React Router v6, Axios, and Framer Motion.
+        - Flag `useEffect` missing dependency arrays.
+        - Check that API calls go through `frontend/src/services/api.js`, not raw `fetch`/`axios` imports.
+        - Ensure auth-protected pages check `AuthContext` before rendering.
+        - Warn on `console.log` left in production code.
+
+    # Docker & Config
+    - path: "docker-compose.yml"
+      instructions: |
+        - Check that all services have healthchecks.
+        - Ensure no secrets are hardcoded — they should use `${VAR:-default}` syntax.
+
+    - path: "**/.env*"
+      instructions: |
+        - NEVER approve a PR that adds real API keys to .env files that are not in .gitignore.
+
+chat:
+  auto_reply: true          # CodeRabbit replies to your comments automatically

@@ -1,14 +1,62 @@
-node_modules
-.env
-__pycache__
+# ── Python ───────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
 *.pyc
+*.pyo
+*.pyd
+*.egg-info/
+*.egg
+
+# ── Virtual environments ──────────────────────────────────────────────────────
+.venv/
+.venv_new/
+venv/
+env/
+
+# ── Secrets — NEVER commit .env files ────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+backend/.env
+ml-service/.env
+frontend/.env
+
+# ── Node.js ───────────────────────────────────────────────────────────────────
+node_modules/
+dist/
+build/
+.cache/
+npm-debug.log*
+
+# ── Build artifacts ───────────────────────────────────────────────────────────
+*.joblib
 *.pkl
-dist
-build
+*.h5
+
+# ── IDE / Editor ──────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ── OS ────────────────────────────────────────────────────────────────────────
 .DS_Store
-.vscode
-.venv_new
-.venv
-venv
-backend-node-legacy
+Thumbs.db
+
+# ── Docker ────────────────────────────────────────────────────────────────────
+# docker-compose.override.yml  # (uncomment if using overrides)
+
+# ── Test / Coverage ───────────────────────────────────────────────────────────
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# ── Uploads / User data ───────────────────────────────────────────────────────
+backend/uploads/
+logs/
+
+# ── Legacy / Scratch ──────────────────────────────────────────────────────────
+backend-node-legacy/
 pathpilot-local-release*
+*.zip

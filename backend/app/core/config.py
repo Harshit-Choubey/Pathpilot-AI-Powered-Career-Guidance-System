@@ -15,8 +15,12 @@ class Settings(BaseSettings):
     GROQ_API_KEY: str = ""
     
     # CORS — restrict to real origins in production
+    # In Docker: overridden by docker-compose BACKEND_CORS_ORIGINS env var (JSON string)
     BACKEND_CORS_ORIGINS: List[str] = [
-        "http://localhost:5173",
+        "http://localhost",          # Nginx on port 80 (Docker)
+        "http://localhost:80",
+        "http://127.0.0.1",
+        "http://localhost:5173",     # Vite dev server (local development)
         "http://localhost:3000",
         "http://127.0.0.1:5173",
     ]
