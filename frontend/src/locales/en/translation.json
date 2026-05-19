@@ -28,7 +28,27 @@
     "feature5_title": "AI Mentor Chat",
     "feature5_desc": "Get instant, personalized advice from our AI career mentor available 24/7",
     "feature6_title": "Progress Tracking",
-    "feature6_desc": "Track your learning progress with gamified milestones, XP and daily streaks"
+    "feature6_desc": "Track your learning progress with gamified milestones, XP and daily streaks",
+    "values_title": "Our Values",
+    "value_student_centric": "Student-Centric",
+    "value_student_centric_desc": "Every decision we make prioritizes the success and well-being of students.",
+    "value_inclusivity": "Inclusivity",
+    "value_inclusivity_desc": "Quality career guidance should be accessible to every student, everywhere.",
+    "value_innovation": "Innovation",
+    "value_innovation_desc": "Leveraging cutting edge AI technology to provide personalized guidance.",
+    "value_excellence": "Excellence",
+    "value_excellence_desc": "Committed to delivering the highest quality career counseling experience.",
+    "how_it_works_title": "How PathPilot Works",
+    "step1_title": "Complete Assessment",
+    "step1_desc": "Take our psychometric tests based on RIASEC and Multiple Intelligence.",
+    "step2_title": "AI Analysis",
+    "step2_desc": "Our AI analyzes your responses to understand your strengths and interests.",
+    "step3_title": "Get Recommendations",
+    "step3_desc": "Receive personalized career matches with details about each path.",
+    "step4_title": "Plan Your Journey",
+    "step4_desc": "Explore skill gaps, learning paths, and growth opportunities.",
+    "step5_title": "Ongoing Support",
+    "step5_desc": "Access the chatbot anytime for guidance and progress tracking."
   },
   "dashboard": {
     "title": "Mission Control",
@@ -338,5 +358,55 @@
     "challenges": "Challenges",
     "view_details": "View Details",
     "start_learning": "Start Learning Path"
+  },
+  "careers": {
+    "Software Developer": "Software Developer",
+    "Data Scientist": "Data Scientist",
+    "UX Designer": "UX Designer",
+    "Product Manager": "Product Manager",
+    "Digital Marketing Specialist": "Digital Marketing Specialist",
+    "Business Analyst": "Business Analyst",
+    "Cybersecurity Analyst": "Cybersecurity Analyst",
+    "DevOps Engineer": "DevOps Engineer",
+    "Machine Learning Engineer": "Machine Learning Engineer",
+    "Financial Analyst": "Financial Analyst",
+    "Architect": "Architect",
+    "Civil Engineer": "Civil Engineer",
+    "Doctor": "Doctor",
+    "Nurse": "Nurse",
+    "Teacher": "Teacher",
+    "Lawyer": "Lawyer",
+    "Content Creator": "Content Creator",
+    "Research Scientist": "Research Scientist"
+  },
+  "meta": {
+    "salary_range": "Salary Range",
+    "growth": {
+      "high": "High Growth",
+      "very_high": "Very High",
+      "moderate": "Moderate",
+      "low": "Low"
+    },
+    "levels": {
+      "entry": "Entry Level",
+      "mid": "Mid Level",
+      "senior": "Senior Level"
+    },
+    "tags": {
+      "Technology": "Technology",
+      "Analytics": "Analytics",
+      "Design": "Design",
+      "Strategy": "Strategy",
+      "Marketing": "Marketing",
+      "Security": "Security",
+      "Cloud": "Cloud",
+      "Finance": "Finance",
+      "AI/ML": "AI/ML",
+      "Python": "Python",
+      "Statistics": "Statistics",
+      "Research": "Research",
+      "Leadership": "Leadership",
+      "Communication": "Communication"
+    }
   }
 }

@@ -28,7 +28,27 @@
     "feature5_title": "एआय मेंटर चॅट",
     "feature5_desc": "24/7 उपलब्ध आमच्या एआय करिअर मेंटरकडून त्वरित, वैयक्तिक सल्ला मिळवा",
     "feature6_title": "प्रगती ट्रॅकिंग",
-    "feature6_desc": "गेमीफाइड मैलाचे दगड, XP आणि दैनिक स्ट्रीकसह तुमची शिकण्याची प्रगती ट्रॅक करा"
+    "feature6_desc": "गेमीफाइड मैलाचे दगड, XP आणि दैनिक स्ट्रीकसह तुमची शिकण्याची प्रगती ट्रॅक करा",
+    "values_title": "आमची मूल्ये",
+    "value_student_centric": "विद्यार्थी-केंद्रित",
+    "value_student_centric_desc": "आमचा प्रत्येक निर्णय विद्यार्थ्यांचे यश आणि कल्याणाला प्राधान्य देतो.",
+    "value_inclusivity": "समावेशकता",
+    "value_inclusivity_desc": "गुणवत्तापूर्ण करिअर मार्गदर्शन प्रत्येक विद्यार्थ्याला, सर्वत्र उपलब्ध असावे.",
+    "value_innovation": "नवनिर्मिती",
+    "value_innovation_desc": "वैयक्तिकृत मार्गदर्शन प्रदान करण्यासाठी अत्याधुनिक एआय तंत्रज्ञानाचा वापर करणे.",
+    "value_excellence": "उत्कृष्टता",
+    "value_excellence_desc": "उच्च दर्जाचा करिअर समुपदेशन अनुभव देण्यासाठी कटिबद्ध.",
+    "how_it_works_title": "PathPilot कसे कार्य करते",
+    "step1_title": "मूल्यांकन पूर्ण करा",
+    "step1_desc": "RIASEC आणि बहुविध बुद्धिमत्ता (Multiple Intelligence) वर आधारित आमच्या मनोमितीय चाचण्या घ्या.",
+    "step2_title": "एआय विश्लेषण",
+    "step2_desc": "आमचे एआय तुमची बलस्थाने आणि आवडी समजून घेण्यासाठी तुमच्या उत्तरांचे विश्लेषण करते.",
+    "step3_title": "शिफारसी मिळवा",
+    "step3_desc": "प्रत्येक मार्गाच्या तपशीलांसह वैयक्तिक करिअर मॅच मिळवा.",
+    "step4_title": "तुमच्या प्रवासाचे नियोजन करा",
+    "step4_desc": "कौशल्य अंतर, शिकण्याचे मार्ग आणि वाढीच्या संधी शोधा.",
+    "step5_title": "सतत सहाय्य",
+    "step5_desc": "मार्गदर्शन आणि प्रगती ट्रॅकिंगसाठी कधीही चॅटबॉटचा वापर करा."
   },
   "dashboard": {
     "title": "मिशन कंट्रोल",
@@ -338,5 +358,55 @@
     "challenges": "आव्हाने",
     "view_details": "तपशील पहा",
     "start_learning": "शिकण्याचा मार्ग सुरू करा"
+  },
+  "careers": {
+    "Software Developer": "सॉफ्टवेअर डेव्हलपर",
+    "Data Scientist": "डेटा सायंटिस्ट",
+    "UX Designer": "यूएक्स डिझायनर",
+    "Product Manager": "प्रॉडक्ट मॅनेजर",
+    "Digital Marketing Specialist": "डिजिटल मार्केटिंग तज्ञ",
+    "Business Analyst": "बिझनेस अॅनालिस्ट",
+    "Cybersecurity Analyst": "सायबर सुरक्षा विश्लेषक",
+    "DevOps Engineer": "डेवऑप्स इंजिनिअर",
+    "Machine Learning Engineer": "मशीन लर्निंग इंजिनिअर",
+    "Financial Analyst": "वित्तीय विश्लेषक",
+    "Architect": "आर्किटेक्ट",
+    "Civil Engineer": "सिव्हिल इंजिनिअर",
+    "Doctor": "डॉक्टर",
+    "Nurse": "नर्स",
+    "Teacher": "शिक्षक",
+    "Lawyer": "वकील",
+    "Content Creator": "कंटेंट क्रिएटर",
+    "Research Scientist": "संशोधन शास्त्रज्ञ"
+  },
+  "meta": {
+    "salary_range": "पगार श्रेणी",
+    "growth": {
+      "high": "उच्च वाढ",
+      "very_high": "खूप उच्च",
+      "moderate": "मध्यम",
+      "low": "कमी"
+    },
+    "levels": {
+      "entry": "प्रवेश स्तर",
+      "mid": "मध्य स्तर",
+      "senior": "वरिष्ठ स्तर"
+    },
+    "tags": {
+      "Technology": "तंत्रज्ञान",
+      "Analytics": "विश्लेषण",
+      "Design": "डिझाइन",
+      "Strategy": "रणनीती",
+      "Marketing": "मार्केटिंग",
+      "Security": "सुरक्षा",
+      "Cloud": "क्लाउड",
+      "Finance": "वित्त",
+      "AI/ML": "AI/ML",
+      "Python": "पायथन",
+      "Statistics": "सांख्यिकी",
+      "Research": "संशोधन",
+      "Leadership": "नेतृत्व",
+      "Communication": "संवाद"
+    }
   }
 }

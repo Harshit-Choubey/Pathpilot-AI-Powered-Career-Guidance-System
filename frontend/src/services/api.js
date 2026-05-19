@@ -65,7 +65,7 @@ export const careerService = {
   getAll: (params) => api.get('/career', { params }),
   search: (query) => api.get(`/career/search?q=${query}`),
   getBySlug: (slug) => api.get(`/career/${slug}`),
-  compare: (slugs) => api.post('/career/compare', { slugs }),
+  compare: (slugs, language = 'en') => api.post('/career/compare', { slugs, language }),
 };
 
 // Chatbot Service
@@ -78,7 +78,8 @@ export const chatService = {
 export const roadmapService = {
   createNode: (data) => api.post('/roadmaps/nodes', data),
   getRoadmap: () => api.get('/roadmaps/'),
-  getSkillGap: () => api.get('/roadmaps/skill-gap'),
+  getSkillGap: (language = 'en') => api.get(`/roadmaps/skill-gap?language=${language}`),
+  getPortfolio: (language = 'en') => api.get(`/roadmaps/portfolio?language=${language}`),
   generateRoadmap: (career, language = 'en') => api.post('/roadmaps/generate', { career, language }),
   translateRoadmap: (language) => api.post('/roadmaps/translate', { language }),
   completeTask: (taskId) => api.post(`/roadmaps/tasks/${taskId}/complete`),

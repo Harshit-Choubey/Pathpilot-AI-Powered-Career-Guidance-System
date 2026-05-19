@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 const SkillGap = () => {
   const { user } = useAuth();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -14,12 +14,13 @@ const SkillGap = () => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const res = await roadmapService.getSkillGap();
+        const res = await roadmapService.getSkillGap(i18n.language);
         if (res.data) {
           setData(res.data);
         }
       } catch (error) {
-        console.error("Failed to load skill gap data", error);
+        // Silent fail or handle via global UI notification
+        setData({ error: true });
       } finally {
         setIsLoading(false);
       }
@@ -100,8 +101,8 @@ const SkillGap = () => {
                 <CheckCircle className="text-emerald-500" /> {t('skill_gap.mastered_title')}
               </h3>
               <div className="space-y-4">
-                {data.mastered_skills.map((skill, i) => (
-                  <div key={i} className="flex items-center justify-between p-4 rounded-xl border border-slate-100 hover:border-emerald-200 hover:bg-emerald-50/30 transition-colors">
+                {data.mastered_skills.map((skill) => (
+                  <div key={skill.name} className="flex items-center justify-between p-4 rounded-xl border border-slate-100 hover:border-emerald-200 hover:bg-emerald-50/30 transition-colors">
                     <span className="font-semibold text-slate-700 flex items-center gap-3">
                       <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
                       {skill.name}
@@ -120,8 +121,8 @@ const SkillGap = () => {
                 <Target className="text-rose-500" /> {t('skill_gap.learn_title')}
               </h3>
               <div className="space-y-4">
-                {data.skills_to_learn.map((skill, i) => (
-                  <div key={i} className="p-5 rounded-xl border border-slate-200 hover:border-indigo-300 transition-colors shadow-sm">
+                {data.skills_to_learn.map((skill) => (
+                  <div key={skill.name} className="p-5 rounded-xl border border-slate-200 hover:border-indigo-300 transition-colors shadow-sm">
                     <div className="flex justify-between items-start mb-2">
                       <h4 className="font-bold text-lg text-slate-800">{skill.name}</h4>
                       <span className={`text-xs font-bold px-3 py-1 rounded-full ${
@@ -163,8 +164,8 @@ const SkillGap = () => {
             <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm">
               <h3 className="font-bold text-slate-800 mb-6 text-lg">{t('skill_gap.recommended_courses')}</h3>
               <div className="space-y-4">
-                {data.recommended_courses.map((course, i) => (
-                  <div key={i} className="p-4 rounded-xl border border-slate-100 hover:border-slate-300 transition-colors group">
+                {data.recommended_courses.map((course) => (
+                  <div key={course.title} className="p-4 rounded-xl border border-slate-100 hover:border-slate-300 transition-colors group">
                     <div className="flex items-start gap-3 mb-3">
                       <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
                         <BookOpen size={20} />

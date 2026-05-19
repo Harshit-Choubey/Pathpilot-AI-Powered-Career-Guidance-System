@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
 import { chatService } from '../services/api';
 import { useAuth } from './AuthContext';
@@ -45,9 +45,9 @@ export const ChatProvider = ({ children }) => {
   const openChat = () => setIsOpen(true);
 
   // A way to inject specific task context dynamically from components
-  const updateContext = (extraData) => {
+  const updateContext = useCallback((extraData) => {
     setPageContext(prev => ({ ...prev, ...extraData }));
-  };
+  }, []);
 
   const sendMessage = async (text) => {
     if (!text.trim()) return;

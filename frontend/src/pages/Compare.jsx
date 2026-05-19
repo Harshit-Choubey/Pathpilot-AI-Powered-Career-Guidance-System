@@ -4,7 +4,7 @@ import { careerService } from '../services/api';
 import { useTranslation } from 'react-i18next';
 
 const Compare = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [careers, setCareers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -14,7 +14,8 @@ const Compare = () => {
         setIsLoading(true);
         // Compare these 3 by default if no params
         const slugs = ["software-developer", "data-scientist", "ux-designer"];
-        const res = await careerService.compare(slugs);
+        const activeLang = i18n.language || 'en';
+        const res = await careerService.compare(slugs, activeLang);
         if (res.data && res.data.success) {
           setCareers(res.data.data);
         }
@@ -25,7 +26,7 @@ const Compare = () => {
       }
     };
     fetchCareers();
-  }, []);
+  }, [i18n.language]);
 
   if (isLoading) {
     return (
