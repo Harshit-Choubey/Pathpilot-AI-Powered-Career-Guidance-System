@@ -71,11 +71,17 @@ const Results = () => {
   }, []);
 
   const { updateContext } = useChat();
+  const contextUpdatedRef = useRef(false);
   
   useEffect(() => {
     if (status === 'completed' && assessment?.ml_results?.predictions) {
-      const options = assessment.ml_results.predictions.map(p => p.career);
-      updateContext({ visible_options: options });
+      if (!contextUpdatedRef.current) {
+        const options = assessment.ml_results.predictions.map(p => p.career);
+        updateContext({ visible_options: options });
+        contextUpdatedRef.current = true;
+      }
+    } else {
+      contextUpdatedRef.current = false;
     }
   }, [status, assessment, updateContext]);
 
@@ -160,6 +166,22 @@ const Results = () => {
   const topMeta = getCareerMeta(top.career);
   const alternatives = predictions.slice(1);
 
+  // Translation helpers
+  const translateCareer = (name) => t(`careers.${name}`, name);
+  const translateGrowth = (g) => {
+    if (g.toLowerCase().includes('very high')) return t('meta.growth.very_high');
+    if (g.toLowerCase().includes('high')) return t('meta.growth.high');
+    if (g.toLowerCase().includes('moderate')) return t('meta.growth.moderate');
+    return g;
+  };
+  const translateLevel = (l) => {
+    if (l.toLowerCase().includes('entry')) return t('meta.levels.entry');
+    if (l.toLowerCase().includes('mid')) return t('meta.levels.mid');
+    if (l.toLowerCase().includes('senior')) return t('meta.levels.senior');
+    return l;
+  };
+  const translateTag = (tag) => t(`meta.tags.${tag}`, tag);
+
   return (
     <div className="flex-1 bg-slate-50 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -191,11 +213,11 @@ const Results = () => {
             
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-4">
               <div>
-                <h2 className="text-4xl font-extrabold mb-4">{top.career}</h2>
+                <h2 className="text-4xl font-extrabold mb-4">{translateCareer(top.career)}</h2>
                 <div className="flex gap-3 mb-6 flex-wrap">
                   {topMeta.tags.map((tag, idx) => (
                     <span key={idx} className="bg-white/10 border border-white/20 px-4 py-1.5 rounded-full text-sm font-medium backdrop-blur-sm">
-                      {tag}
+                      {translateTag(tag)}
                     </span>
                   ))}
                 </div>
@@ -230,7 +252,7 @@ const Results = () => {
                 return (
                   <div key={idx} className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-shadow flex flex-col h-full">
                     <div className="flex justify-between items-start mb-4">
-                      <h3 className="text-xl font-bold text-slate-800">{alt.career}</h3>
+                      <h3 className="text-xl font-bold text-slate-800">{translateCareer(alt.career)}</h3>
                       <div className="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full text-sm font-bold">
                         {alt.matchPercentage?.toFixed(1)}% {t('results.match')}
                       </div>
@@ -239,15 +261,15 @@ const Results = () => {
                     <div className="grid grid-cols-2 gap-y-4 gap-x-6 mb-6">
                       <div className="flex items-center gap-2 text-slate-600 text-sm">
                         <IndianRupee size={16} className="text-slate-400" />
-                        <span>{meta.salary}</span>
+                        <span>{topMeta.salary_range} {meta.salary}</span>
                       </div>
                       <div className="flex items-center gap-2 text-slate-600 text-sm">
                         <TrendingUp size={16} className="text-slate-400" />
-                        <span>{meta.growth}</span>
+                        <span>{translateGrowth(meta.growth)}</span>
                       </div>
                       <div className="flex items-center gap-2 text-slate-600 text-sm">
                         <Briefcase size={16} className="text-slate-400" />
-                        <span>{meta.level}</span>
+                        <span>{translateLevel(meta.level)}</span>
                       </div>
                       <div className="flex items-center gap-2 text-slate-600 text-sm">
                         <Clock size={16} className="text-slate-400" />
@@ -258,7 +280,7 @@ const Results = () => {
                     <div className="flex flex-wrap gap-2 mb-6">
                       {meta.tags.map((tag, i) => (
                         <span key={i} className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-medium">
-                          {tag}
+                          {translateTag(tag)}
                         </span>
                       ))}
                     </div>

@@ -1,5 +1,5 @@
 from typing import Dict, Any, List, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime
 
 class AssessmentSubmission(BaseModel):
@@ -16,8 +16,7 @@ class AssessmentResultItem(BaseModel):
     status: str
     ml_results: Optional[Dict[str, Any]] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class AssessmentHistoryResponse(BaseModel):
     success: bool

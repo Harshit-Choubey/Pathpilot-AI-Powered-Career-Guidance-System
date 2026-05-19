@@ -11,7 +11,7 @@ from google.genai import types
 
 logger = get_task_logger(__name__)
 
-@celery_app.task(name="ml_inference_task", bind=True, max_retries=3)
+@celery_app.task(name="ml_inference_task", bind=True, max_retries=3, default_retry_delay=60)
 def ml_inference_task(self, user_id: str, assessment_data: dict, assessment_id: str = None):
     """
     Offloads ML psychometric processing to background worker.
@@ -98,10 +98,12 @@ def ml_inference_task(self, user_id: str, assessment_data: dict, assessment_id: 
             ml_url = "http://ml_service:8001"
 
         try:
-            resp_predict = httpx.post(f"{ml_url}/predict", json={"features": features}, timeout=10.0)
+            resp_predict = httpx.post(f"{ml_url}/predict", json={"features": features}, timeout=15.0)
+            resp_predict.raise_for_status()
             predictions = resp_predict.json().get("predictions", [])
             
-            resp_explain = httpx.post(f"{ml_url}/explain", json={"features": features}, timeout=10.0)
+            resp_explain = httpx.post(f"{ml_url}/explain", json={"features": features}, timeout=15.0)
+            resp_explain.raise_for_status()
             explanations = resp_explain.json()
             
             result_data = {
@@ -109,9 +111,10 @@ def ml_inference_task(self, user_id: str, assessment_data: dict, assessment_id: 
                 "feature_importance": explanations.get("feature_importance", []),
                 "predicted_career": explanations.get("predicted_career_for_explanation")
             }
-        except httpx.RequestError as e:
-            logger.error(f"Failed calling ML Service: {e}")
-            result_data = {"error": "ML Service unavailable"}
+        except (httpx.RequestError, httpx.HTTPStatusError) as e:
+            # ML service is not ready yet (still loading models) — retry instead of failing permanently
+            logger.warning(f"ML Service unavailable, will retry: {e}")
+            raise self.retry(exc=e, countdown=30, max_retries=3)
             
         # 3. Update DB
         if assessment_id:
@@ -130,7 +133,7 @@ def ml_inference_task(self, user_id: str, assessment_data: dict, assessment_id: 
         self.retry(exc=exc, countdown=10)
 
 
-@celery_app.task(name="roadmap_generation_task", bind=True)
+@celery_app.task(name="roadmap_generation_task", bind=True, max_retries=3, default_retry_delay=30)
 def roadmap_generation_task(self, user_id: str, career_goal: str, language: str = "en"):
     """
     Triggers parsing of the required skills mapping and outputs an Acyclic Graph
@@ -274,21 +277,22 @@ def roadmap_generation_task(self, user_id: str, career_goal: str, language: str 
         return {"status": "FAILED", "reason": "Invalid JSON from LLM"}
     except Exception as e:
         logger.error(f"Failed to generate roadmap: {str(e)}")
-        return {"status": "FAILED"}
+        raise self.retry(exc=e)
 
 
-@celery_app.task(name="notification_dispatcher_task")
-def notification_dispatcher_task(user_id: str, notification_type: str, subject: str, message: str):
+@celery_app.task(name="notification_dispatcher_task", bind=True, max_retries=5, default_retry_delay=300)
+def notification_dispatcher_task(self, user_id: str, notification_type: str, subject: str, message: str):
     """
     Sends generic non-blocking emails or push notification pings using external CRM providers.
     """
     logger.info(f"Dispatching {notification_type} Notification to user {user_id}")
     # E.g. SendGrid, Twilio Logic Here
-    time.sleep(1)
+    # Simulated dispatch log
+    logger.info("Notification payload prepared.")
     return {"status": "DELIVERED"}
 
-@celery_app.task(name="monitor_user_velocity")
-def monitor_user_velocity(user_id: str):
+@celery_app.task(name="monitor_user_velocity", bind=True, max_retries=2)
+def monitor_user_velocity(self, user_id: str):
     """
     Adaptive Intelligence System:
     Checks if the user has 0 execution time over the past 4 days.
@@ -353,8 +357,8 @@ def monitor_user_velocity(user_id: str):
     except Exception as e:
         logger.error(f"Adaptive Intelligence failed: {str(e)}")
         return {"status": "FAILED"}
-@celery_app.task(name="adaptive_engine_task")
-def adaptive_engine_task(user_id: str):
+@celery_app.task(name="adaptive_engine_task", bind=True, max_retries=2)
+def adaptive_engine_task(self, user_id: str):
     """
     Adaptive engine runs after every 3 feedbacks.
     Logic:
